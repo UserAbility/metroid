@@ -8,25 +8,20 @@ ModelImporter:
     100000: //RootNode
     100002: brush
     100004: pCube138
-    100006: base
-    100008: block
+    100006: block
     400000: //RootNode
     400002: brush
     400004: pCube138
-    400006: base
-    400008: block
+    400006: block
     2300000: brush
     2300002: pCube138
-    2300004: base
-    2300006: block
+    2300004: block
     3300000: brush
     3300002: pCube138
-    3300004: base
-    3300006: block
+    3300004: block
     4300000: brush
     4300002: pCube138
-    4300004: base
-    4300006: block
+    4300004: block
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -52,7 +47,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 0.005
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1
