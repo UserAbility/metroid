@@ -10,11 +10,23 @@ ModelImporter:
     100004: highlight
     100006: shade
     100008: block
+    100010: block11
+    100012: block12
+    100014: block2
+    100016: transform399
+    100018: transform400
+    100020: transform401
     400000: base
     400002: //RootNode
     400004: highlight
     400006: shade
     400008: block
+    400010: block11
+    400012: block12
+    400014: block2
+    400016: transform399
+    400018: transform400
+    400020: transform401
     2300000: base
     2300002: highlight
     2300004: shade

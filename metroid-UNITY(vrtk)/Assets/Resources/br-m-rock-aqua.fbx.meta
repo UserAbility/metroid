@@ -25,6 +25,7 @@ ModelImporter:
     4300002: highlight
     4300004: shade
     4300006: br_m_rock_aqua2_base
+    4300008: br_m_rock_aqua
     9500000: //RootNode
   materials:
     importMaterials: 1

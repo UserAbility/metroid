@@ -6,10 +6,50 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: cube
+    100004: cube1
+    100006: cube2
+    100008: cube3
+    100010: cube4
+    100012: cube5
+    100014: cube6
+    100016: cube7
     400000: //RootNode
+    400002: cube
+    400004: cube1
+    400006: cube2
+    400008: cube3
+    400010: cube4
+    400012: cube5
+    400014: cube6
+    400016: cube7
     2300000: //RootNode
+    2300002: cube
+    2300004: cube1
+    2300006: cube2
+    2300008: cube3
+    2300010: cube4
+    2300012: cube5
+    2300014: cube6
+    2300016: cube7
     3300000: //RootNode
+    3300002: cube
+    3300004: cube1
+    3300006: cube2
+    3300008: cube3
+    3300010: cube4
+    3300012: cube5
+    3300014: cube6
+    3300016: cube7
     4300000: hall_blue4
+    4300002: cube6
+    4300004: cube7
+    4300006: cube4
+    4300008: cube5
+    4300010: cube
+    4300012: cube3
+    4300014: cube1
+    4300016: cube2
   materials:
     importMaterials: 1
     materialName: 0
@@ -34,7 +74,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 0.054
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

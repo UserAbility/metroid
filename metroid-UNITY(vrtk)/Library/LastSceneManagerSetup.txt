@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/br1a.unity
+- path: Assets/Scenes/sprites-all.unity
   isLoaded: 1
   isActive: 1

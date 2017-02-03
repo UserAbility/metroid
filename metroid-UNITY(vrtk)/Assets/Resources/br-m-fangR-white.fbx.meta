@@ -10,6 +10,7 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: pCone5
+    4300002: pCone3
   materials:
     importMaterials: 1
     materialName: 0

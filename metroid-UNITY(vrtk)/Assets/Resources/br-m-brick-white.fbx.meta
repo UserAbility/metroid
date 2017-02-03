@@ -16,12 +16,15 @@ ModelImporter:
     2300000: pCube384
     2300002: pCube405
     2300004: pCube406
+    2300006: //RootNode
     3300000: pCube384
     3300002: pCube405
     3300004: pCube406
+    3300006: //RootNode
     4300000: pCube405
     4300002: pCube406
     4300004: pCube384
+    4300006: Brick_white
   materials:
     importMaterials: 1
     materialName: 0
