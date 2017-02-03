@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 17b8ba7cb7a674a2c9484dca93bc87a6
+guid: 74487624f14a74639b00c2e44d0f9288
 timeCreated: 1485584834
 licenseType: Free
 ModelImporter:
@@ -9,8 +9,8 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: pCone6
-    4300002: pCone4
+    4300000: pCone4
+    4300002: pCone6
   materials:
     importMaterials: 1
     materialName: 0

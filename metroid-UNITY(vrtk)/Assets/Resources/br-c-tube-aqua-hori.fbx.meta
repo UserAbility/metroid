@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: d1def4e6923d645cdab9ea430830c8de
-timeCreated: 1485334617
+guid: 0fe34be3539794aafac2312ec0b35810
+timeCreated: 1486161670
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,8 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: bush_blue_cube1
+    4300000: tube_hori_aqua
+    9500000: //RootNode
   materials:
     importMaterials: 1
     materialName: 0
@@ -72,7 +73,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 

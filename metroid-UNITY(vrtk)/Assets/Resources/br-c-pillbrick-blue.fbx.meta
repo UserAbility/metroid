@@ -6,10 +6,20 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: base
+    100004: pills
     400000: //RootNode
+    400002: base
+    400004: pills
     2300000: //RootNode
+    2300002: base
+    2300004: pills
     3300000: //RootNode
+    3300002: base
+    3300004: pills
     4300000: pillbrick2_blue_cube
+    4300002: pills
+    4300004: base
   materials:
     importMaterials: 1
     materialName: 0

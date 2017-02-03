@@ -10,6 +10,7 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: rock_orange_cube
+    4300002: br_m_rock_orange
   materials:
     importMaterials: 1
     materialName: 0
