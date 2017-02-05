@@ -227,20 +227,15 @@ public class CreatePrefabEditor
 
             // Re-work the structname in case of duplicates
             structName = areaName + "_" + roomNumber + "_" + structureNumber + "_" + (FindGameObjectsWithSameName(structName).Length + 1).ToString();
-
-            // Make sure the plane created is set to 0,0,0 coords
-            GameObject.Find("Plane").transform.position += new Vector3(0, 0, 0);
-
-
+            
             // Create default parent
-            var sceneParent = new GameObject(structName);
-
+            var currentStructure = new GameObject(structName);
 
             // Generate our structure at specific X,Y,Z coords to match NES placement
-            sceneParent.transform.position += new Vector3(nesX, nesY, 0);
+            currentStructure.transform.position += new Vector3(nesX, nesY, 0);
 
             // Set the new parent object to the plane parent
-            sceneParent.transform.SetParent(GameObject.Find("Plane").transform, true);
+            currentStructure.transform.SetParent(GameObject.Find("Plane").transform, true);
 
             string structureData = Regex.Replace(sr.ReadToEnd(), @"\t|\n|\r|", "");
             string[] structureBytes = structureData.Split(' ');
@@ -269,11 +264,13 @@ public class CreatePrefabEditor
             //Debug.Log("Line2 = " + (jagged.Length-1).ToString() + "," + (jagged[1].Length-1).ToString());
             //Debug.Log("Line3 = " + (jagged.Length-1).ToString() + "," + (jagged[2].Length-1).ToString());
             //Debug.Log("Line4 = " + (jagged.Length-1).ToString() + "," + (jagged[3].Length-1).ToString());
+            int x = 0;
+            int y = 0;
 
             // create planes based on matrix
-            for (int y = 0; y < jagged.Length - 1; y++)
+            for (y = 0; y < jagged.Length - 1; y++)
             {
-                for (int x = 0; x < jagged[y].Length - 1; x++)
+                for (x = 0; x < jagged[y].Length - 1; x++)
                 {
                     var prefabName = "";
                     // Create the prefab in the UI editor/canvas
@@ -329,7 +326,7 @@ public class CreatePrefabEditor
                                 if (prefabName.Replace("_", "-") != "")
                                 {
                                     Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
-                                    childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x * 1, y * 1, 0), Quaternion.Euler(0, 0, -180)) as GameObject;
+                                    childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x * 1, y * 1, 0), Quaternion.Euler(0, 0,-180)) as GameObject;
                                     foreach (Transform child in childTileObject.transform)
                                     {
                                         // child.transform.SetParent(childTileObject.transform, false);
@@ -340,21 +337,52 @@ public class CreatePrefabEditor
 
                                     //childTileObject.transform.Rotate(180, 0, 0);
 
-                                    childTileObject.transform.SetParent(GameObject.Find(structName).transform, false);
+                                    //BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
+                                    //_bc.center = new Vector3(0, 50, 0);
 
+                                    childTileObject.transform.SetParent(currentStructure.transform, false);
+
+                                    // All Tiles get colliders
+                                    BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
+                                    _bc.center = new Vector3(0, 50, 0);
+                                    _bc.size = new Vector3(100, 100, 1000);
                                 }
                                 break;
 
-
+                                
                         }
 
                     }
                 }
+                
+
+
             }
+
+            currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
+
+            // All Tiles get colliders per row
+            //BoxCollider _bc = (BoxCollider)sceneParent.gameObject.AddComponent(typeof(BoxCollider));
+            //Debug.Log(x + " <== X and Y ==>" + y);
+            //_bc.center = new Vector3(1.5f, 1f, 0f);
+            //_bc.size = new Vector3(x, y, 1);
+
+            //BoxCollider _bc = (BoxCollider)sceneParent.gameObject.AddComponent(typeof(BoxCollider));
+            //_bc.center = Vector3.zero;
         }
 
 
 
+    }
+
+    public static Bounds GetMaxBounds(GameObject g)
+    {
+        var b = new Bounds(g.transform.position, Vector3.zero);
+        foreach (Renderer r in g.GetComponentsInChildren<Renderer>())
+        {
+            b.Encapsulate(r.bounds);
+        }
+        return b;
     }
 
     public static string Format(string number, int batchSize, string separator)
@@ -403,8 +431,8 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "0C", preFabName = "br-c-statue-aqua" });
 
         // Brinstar: Blue balls ( NOT WORKING.. REPLACE WITH POT AQUA FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-m-balls-purple" });
-        tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-m-balls-purple" });
+        tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-m-bubble-quad-purple" });
+        tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-m-bubble-quad-purple" });
         //tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-c-pot-aqua" });
         //tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-c-pot-aqua" });
 
@@ -490,8 +518,8 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "28", preFabName = "blank" });
 
         // TEMP MAPPING FOR THE 2 piece BLUE BUSH
-        tileMap.Add(new tileMapperList() { tileByte = "3E", preFabName = "br-c-pipe-aquaB" });
-        tileMap.Add(new tileMapperList() { tileByte = "3F", preFabName = "br-c-pipe-aquaA" });
+        tileMap.Add(new tileMapperList() { tileByte = "3E", preFabName = "br-c-bush-blueB" });
+        tileMap.Add(new tileMapperList() { tileByte = "3F", preFabName = "br-c-bush-blue" });
 
         // TEMP MAPPING FOR THE 2 PIECE PIPE set to br-c-vent-aqua until tiles are made
         tileMap.Add(new tileMapperList() { tileByte = "31", preFabName = "br-c-pipe-aquaB" });
@@ -857,6 +885,11 @@ public class CreatePrefabEditor
     private static void CreatePrefab()
     {
 
+        // Create the plane automatically
+        var sceneParent = new GameObject("Plane");
+
+        // Make sure the plane created is set to 0,0,0 coords
+        sceneParent.transform.position += new Vector3(0, 0, 0);
 
 
         // Load the static list of Prefab<->Structure mapping data
@@ -901,7 +934,7 @@ public class CreatePrefabEditor
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "09", 0x6337, 0x6336, 32, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
-        // The rest of Brinstar
+        //// The rest of Brinstar
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "00", 0x6325, 0x6324, 80, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "01", 0x6327, 0x6326, 96, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "02", 0x6329, 0x6328, 112, 0, 0x4011, 0x8000);
