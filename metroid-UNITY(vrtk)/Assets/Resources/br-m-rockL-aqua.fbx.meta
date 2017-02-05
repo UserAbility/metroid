@@ -16,12 +16,15 @@ ModelImporter:
     2300000: base
     2300002: highlight
     2300004: shadow
+    2300006: //RootNode
     3300000: base
     3300002: highlight
     3300004: shadow
+    3300006: //RootNode
     4300000: highlight
     4300002: shadow
     4300004: base
+    4300006: rockL_aqua4_base
   materials:
     importMaterials: 1
     materialName: 0
