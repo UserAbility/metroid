@@ -1,0 +1,4 @@
+1D 1D 1D 1D 
+1D 1C 1C 1D 
+1C 1D 1C 1C 
+1D 1C 1D 1D 
