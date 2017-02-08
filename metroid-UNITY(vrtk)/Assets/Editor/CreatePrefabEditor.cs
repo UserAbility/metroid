@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -206,6 +205,25 @@ public class CreatePrefabEditor
                     );
             }
         }
+
+        string thing1 = "";
+
+        // Read past the structure data to get any item/enemy/door info
+        while (thing1 != "FF")
+        {
+            // Sprite Slot/Item Type (01 = Slot 0/Enemy)
+            thing1 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+            if (thing1 != "FF")
+            {
+                // Difficulty/Enemy Type (05 = easiest yellow crawler)
+                string thing2 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+
+                // YX screen placement for item
+                string thing3 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+
+                Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
+            }
+        }
         Debug.Log("All room data read!");
     }
 
@@ -227,7 +245,7 @@ public class CreatePrefabEditor
 
             // Re-work the structname in case of duplicates
             structName = areaName + "_" + roomNumber + "_" + structureNumber + "_" + (FindGameObjectsWithSameName(structName).Length + 1).ToString();
-            
+
             // Create default parent
             var currentStructure = new GameObject(structName);
 
@@ -244,7 +262,7 @@ public class CreatePrefabEditor
                 if (s != "")
                 {
                     structure.Add(new structList() { tileByte = s, structureName = structName });
-                    Debug.Log("Added TileByte = " + s + " StructureName = " + structName);
+                    //Debug.Log("Added TileByte = " + s + " StructureName = " + structName);
                 }
             }
 
@@ -277,8 +295,8 @@ public class CreatePrefabEditor
                     if (byteCount < structure.Count)
                     {
                         // Use this to see where the last structure failed to load
-                        Debug.Log("StructureCount  " + structure.Count);
-                        Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
+                        //Debug.Log("StructureCount  " + structure.Count);
+                        //Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
 
                         prefabName = tileMap.Find(map => map.tileByte.Contains(structure[byteCount].tileByte)).preFabName;
                         byteCount++;
@@ -325,8 +343,8 @@ public class CreatePrefabEditor
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
-                                    Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
-                                    childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x * 1, y * 1, 0), Quaternion.Euler(0, 0,-180)) as GameObject;
+                                    //Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
+                                    childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x * 1, y * 1, 0), Quaternion.Euler(0, 0, -180)) as GameObject;
                                     foreach (Transform child in childTileObject.transform)
                                     {
                                         // child.transform.SetParent(childTileObject.transform, false);
@@ -349,12 +367,12 @@ public class CreatePrefabEditor
                                 }
                                 break;
 
-                                
+
                         }
 
                     }
                 }
-                
+
 
 
             }
@@ -558,13 +576,13 @@ public class CreatePrefabEditor
 
         string roomPtr2ndByte = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
-        Debug.Log(((Convert.ToInt32(("0x" + roomPtr1stByte + roomPtr2ndByte), 16)
-            - Convert.ToInt32(("0x8000"), 16))
-            + Convert.ToInt32(("0x4011"), 16)).ToString("X"));
+        //Debug.Log(((Convert.ToInt32(("0x" + roomPtr1stByte + roomPtr2ndByte), 16)
+        //    - Convert.ToInt32(("0x8000"), 16))
+        //    + Convert.ToInt32(("0x4011"), 16)).ToString("X"));
 
-        Debug.Log(((Convert.ToInt32(("0x" + roomPtr1stByte + roomPtr2ndByte), 16)
-            - nesBaseAddress)
-            + nesBankOffset).ToString("X"));
+        //Debug.Log(((Convert.ToInt32(("0x" + roomPtr1stByte + roomPtr2ndByte), 16)
+        //    - nesBaseAddress)
+        //    + nesBankOffset).ToString("X"));
 
         // Calculate the room data offset based on the room number pointer value
         int roomOffset = ((Convert.ToInt32(("0x" + roomPtr1stByte + roomPtr2ndByte), 16)
@@ -616,7 +634,7 @@ public class CreatePrefabEditor
                 if (s != "")
                 {
                     structure.Add(new structList() { tileByte = s, structureName = structName });
-                    Debug.Log("Added TileByte = " + s + " StructureName = " + structName);
+                    //Debug.Log("Added TileByte = " + s + " StructureName = " + structName);
                 }
             }
 
@@ -647,8 +665,8 @@ public class CreatePrefabEditor
                     if (byteCount < structure.Count)
                     {
                         // Use this to see where the last structure failed to load
-                        Debug.Log("StructureCount  " + structure.Count);
-                        Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
+                        //Debug.Log("StructureCount  " + structure.Count);
+                        //Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
 
                         prefabName = tileMap.Find(map => map.tileByte.Contains(structure[byteCount].tileByte)).preFabName;
                         byteCount++;
@@ -935,48 +953,48 @@ public class CreatePrefabEditor
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
         //// The rest of Brinstar
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "00", 0x6325, 0x6324, 80, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "01", 0x6327, 0x6326, 96, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "02", 0x6329, 0x6328, 112, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "03", 0x632B, 0x632A, 128, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "04", 0x632D, 0x632C, 144, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "05", 0x632F, 0x632E, 160, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "06", 0x6331, 0x6330, 176, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "07", 0x6333, 0x6332, 192, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0A", 0x6339, 0x6338, 208, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0B", 0x633B, 0x633A, 224, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0C", 0x633D, 0x633C, 240, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0D", 0x633F, 0x633E, 256, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0E", 0x6341, 0x6340, 272, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0F", 0x6343, 0x6342, 288, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "10", 0x6345, 0x6344, 304, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "11", 0x6347, 0x6346, 320, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "12", 0x6349, 0x6348, 336, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "15", 0x634F, 0x634E, 352, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "16", 0x6351, 0x6350, 368, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "18", 0x6355, 0x6354, 384, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "19", 0x6357, 0x6356, 400, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1A", 0x6359, 0x6358, 416, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1B", 0x635B, 0x635A, 432, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1C", 0x635D, 0x635C, 448, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1D", 0x635F, 0x635E, 464, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1E", 0x6361, 0x6360, 480, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1F", 0x6363, 0x6362, 496, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "20", 0x6365, 0x6364, 512, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "21", 0x6367, 0x6366, 528, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "22", 0x6369, 0x6368, 544, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "23", 0x636B, 0x636A, 560, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "24", 0x636D, 0x636C, 576, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "25", 0x636F, 0x636E, 592, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "26", 0x6371, 0x6370, 608, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "27", 0x6373, 0x6372, 624, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "28", 0x6375, 0x6374, 640, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "29", 0x6377, 0x6376, 656, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2A", 0x6379, 0x6378, 672, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2B", 0x637B, 0x637A, 688, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2C", 0x637D, 0x637C, 704, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2D", 0x637F, 0x637E, 720, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2E", 0x6381, 0x6380, 736, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "00", 0x6325, 0x6324, 80, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "01", 0x6327, 0x6326, 96, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "02", 0x6329, 0x6328, 112, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "03", 0x632B, 0x632A, 128, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "04", 0x632D, 0x632C, 144, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "05", 0x632F, 0x632E, 160, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "06", 0x6331, 0x6330, 176, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "07", 0x6333, 0x6332, 192, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0A", 0x6339, 0x6338, 208, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0B", 0x633B, 0x633A, 224, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0C", 0x633D, 0x633C, 240, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0D", 0x633F, 0x633E, 256, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0E", 0x6341, 0x6340, 272, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "0F", 0x6343, 0x6342, 288, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "10", 0x6345, 0x6344, 304, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "11", 0x6347, 0x6346, 320, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "12", 0x6349, 0x6348, 336, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "15", 0x634F, 0x634E, 352, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "16", 0x6351, 0x6350, 368, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "18", 0x6355, 0x6354, 384, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "19", 0x6357, 0x6356, 400, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1A", 0x6359, 0x6358, 416, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1B", 0x635B, 0x635A, 432, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1C", 0x635D, 0x635C, 448, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1D", 0x635F, 0x635E, 464, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1E", 0x6361, 0x6360, 480, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "1F", 0x6363, 0x6362, 496, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "20", 0x6365, 0x6364, 512, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "21", 0x6367, 0x6366, 528, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "22", 0x6369, 0x6368, 544, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "23", 0x636B, 0x636A, 560, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "24", 0x636D, 0x636C, 576, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "25", 0x636F, 0x636E, 592, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "26", 0x6371, 0x6370, 608, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "27", 0x6373, 0x6372, 624, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "28", 0x6375, 0x6374, 640, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "29", 0x6377, 0x6376, 656, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2A", 0x6379, 0x6378, 672, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2B", 0x637B, 0x637A, 688, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2C", 0x637D, 0x637C, 704, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2D", 0x637F, 0x637E, 720, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "2E", 0x6381, 0x6380, 736, 0, 0x4011, 0x8000);
 
         // Norfair
         //buildRoomDataRef("Assets/Resources/test.data", "NORFAIR", "00", 0xA22C, 0xA22B, 0, 0, 0x8011, 0x8000);
