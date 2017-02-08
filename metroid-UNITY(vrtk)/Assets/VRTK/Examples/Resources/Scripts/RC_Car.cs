@@ -10,7 +10,7 @@
         private float acceleration = 0.05f;
         private float movementSpeed = 0f;
         private float rotationSpeed = 180f;
-        private bool isJumping = true;
+        private bool isJumping = false;
         private Vector2 touchAxis;
         private float triggerAxis;
         private Rigidbody rb;
