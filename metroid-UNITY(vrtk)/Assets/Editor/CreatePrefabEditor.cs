@@ -252,6 +252,8 @@ public class CreatePrefabEditor
             // Generate our structure at specific X,Y,Z coords to match NES placement
             currentStructure.transform.position += new Vector3(nesX, nesY, 0);
 
+            //currentStructure.transform.localScale += new Vector3(0.1f, -0.1f, 0.1f);
+
             // Set the new parent object to the plane parent
             currentStructure.transform.SetParent(GameObject.Find("Plane").transform, true);
 
@@ -310,60 +312,34 @@ public class CreatePrefabEditor
                                 break;
 
 
-                            case "br-m-tube-hori-aqua":
-                                //childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-m-tube-hori-aqua"), new Vector3(x * scaleX, (y * scaleY) - 1, 0), Quaternion.Euler(90, 270, 0)) as GameObject;
-                                //childTileObject.transform.SetParent(GameObject.Find(structName).transform, false);
-
-
-
-                                break;
-                            case "br_m_tube_hori_aqua":
-
-                                //childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-m-tube-hori-aqua"), new Vector3(x * scaleX, (y * scaleY) - 1, 0), Quaternion.Euler(90, 270, 0)) as GameObject;
-                                //childTileObject.transform.SetParent(GameObject.Find(structName).transform, false);
-
-
-
-                                break;
-                            //case "br_c_rockR_aqua":
-                            //    childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-rockR-aqua"), new Vector3((x * scaleX), ((y * scaleY)), 0), Quaternion.Euler(0, 180, 90)) as GameObject;
-                            //    childTileObject.transform.SetParent(sceneParent.transform, false);
-                            //    break;
-
-                            //case "br_c_rockL_aqua":
-                            //    childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-rockL-aqua"), new Vector3((x * scaleX), ((y * scaleY)), 0), Quaternion.Euler(0, 180, 90)) as GameObject;
-                            //    childTileObject.transform.SetParent(sceneParent.transform, false);
-
-                            //    //childTileObject.transform.SetParent(sceneParent.transform, false);
-
-                            //    break;
-
-
                             default:
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
                                     //Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
-                                    childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x * 1, y * 1, 0), Quaternion.Euler(0, 0, -180)) as GameObject;
+                                    childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
                                     foreach (Transform child in childTileObject.transform)
                                     {
-                                        // child.transform.SetParent(childTileObject.transform, false);
+                                       // child.transform.SetParent(childTileObject.transform, false);
                                         //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
-                                        //child.transform.localScale = childTileObject.transform.localScale;
+
+                                        child.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
 
                                     }
 
-                                    //childTileObject.transform.Rotate(180, 0, 0);
+                                    childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
 
+                                    
                                     //BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
                                     //_bc.center = new Vector3(0, 50, 0);
 
                                     childTileObject.transform.SetParent(currentStructure.transform, false);
 
+                                    
                                     // All Tiles get colliders
                                     BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
-                                    _bc.center = new Vector3(0, 50, 0);
-                                    _bc.size = new Vector3(100, 100, 1000);
+                                   // _bc.center = new Vector3(0, 50, 0);
+                                    _bc.size = new Vector3(100, 100, 100);
                                 }
                                 break;
 
@@ -378,6 +354,10 @@ public class CreatePrefabEditor
             }
 
             currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
+
+         
+
+            //currentStructure.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
 
             // All Tiles get colliders per row
             //BoxCollider _bc = (BoxCollider)sceneParent.gameObject.AddComponent(typeof(BoxCollider));
@@ -444,8 +424,8 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "29", preFabName = "br-m-rock-aqua" });
 
 
-        tileMap.Add(new tileMapperList() { tileByte = "0A", preFabName = "br-m-rockL-aqua" });
-        tileMap.Add(new tileMapperList() { tileByte = "09", preFabName = "br-m-rockR-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "0A", preFabName = "br-m-rockR-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "09", preFabName = "br-m-rockL-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "0C", preFabName = "br-c-statue-aqua" });
 
         // Brinstar: Blue balls ( NOT WORKING.. REPLACE WITH POT AQUA FOR NOW )
@@ -908,7 +888,7 @@ public class CreatePrefabEditor
 
         // Make sure the plane created is set to 0,0,0 coords
         sceneParent.transform.position += new Vector3(0, 0, 0);
-
+        
 
         // Load the static list of Prefab<->Structure mapping data
         loadRuntimeVariables();
@@ -946,12 +926,17 @@ public class CreatePrefabEditor
         //roomBuilder("Assets/Resources/test.data", 0x65D7, "Brinstar", 0);
         //tileImportValidator(@"c:\temp\allbrin.txt", 0, 0, "brinstar", "AllBrin", "TileLayout");
 
+        // So here I am saying make the first 5 rooms that make up the first area.  It's technical in nature obviously, but its how the nes represents it all.
         // Brinstar starting area
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "08", 0x6335, 0x6334, 0, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "17", 0x6353, 0x6352, 16, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "09", 0x6337, 0x6336, 32, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
         buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
+
+        GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
+        GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
+
         //// The rest of Brinstar
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "00", 0x6325, 0x6324, 80, 0, 0x4011, 0x8000);
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "01", 0x6327, 0x6326, 96, 0, 0x4011, 0x8000);
