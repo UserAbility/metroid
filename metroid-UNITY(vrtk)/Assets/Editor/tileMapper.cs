@@ -13,3 +13,15 @@ public class structList
  
 
 }
+
+
+public class roomDataList
+{
+    public string nesRoomNum { get; set; }
+    public int topByte { get; set; }
+    public int bottomByte { get; set; }
+    public int bankOffset { get; set; }
+    public int baseMemoryAddress { get; set; }
+    public string areaName { get; set; }
+
+}

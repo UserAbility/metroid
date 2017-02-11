@@ -1,33 +1,25 @@
+
 using UnityEngine;
 using UnityEditor;
 using System;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Text;
-using System.Reflection;
 using System.Collections.Generic;
 
 public class CreatePrefabEditor
 {
-    /* Example from Unity API Documentation for:
-	 * PrefabUtility.CreateEmptyPrefab (Looks like a duplicate example) &
-	 * PrefabUtiltiy.ReplacePrefab
-	 * Converted from UnityScript to C#
-	 * 
-	 * However, if you make a prefab from the project folder, there are a few errors
-	 * generated from the CreateNew() function.
-	 * 
-	 * Creates a prefab from the selected GameObjects.
-	 * If the prefab already exists it asks if you want to replace it
-	 * 
-	 */
-
-
+   
     public Transform player;
     public Transform floor_valid;
     public Transform floor_obstacle;
     public Transform floor_checkpoint;
+
+    // Pre-fab children variable
     public GameObject childTileObject;
+
+    // Map Data array
+    public static string[][] mapStructure;
 
     public const string sfloor_valid = "0";
     public const string sfloor_obstacle = "1";
@@ -39,6 +31,7 @@ public class CreatePrefabEditor
 
     // Build a list to hold the multidimensional data mapped between NES tile byte assigments and Unity prefabs
     public static List<tileMapperList> tileMap = new List<tileMapperList>();
+    public static List<roomDataList> roomDataList = new List<roomDataList>();
 
 
 
@@ -195,8 +188,10 @@ public class CreatePrefabEditor
                 paletteRead = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
                 //Debug.Log("XY positionRead = " + nesYXcoords + " structure # = " + structureRead + " paletteRead =" + paletteRead + " offset was " + offset.ToString("X"));
+                Debug.Log("Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt");
+
                 structurePreFabBuilder(
-                    "Assets/Resources/struct/brinstar/" + structureRead + ".txt",
+                    "Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt",
                     int.Parse(nesYXcoords.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) + xMapOffset,
                     int.Parse(nesYXcoords.Substring(0, 1), System.Globalization.NumberStyles.HexNumber) + yMapOffset,
                     areaName,
@@ -297,13 +292,13 @@ public class CreatePrefabEditor
                     if (byteCount < structure.Count)
                     {
                         // Use this to see where the last structure failed to load
-                        //Debug.Log("StructureCount  " + structure.Count);
-                        //Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
+                        Debug.Log("StructureCount  " + structure.Count);
+                        Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
 
                         prefabName = tileMap.Find(map => map.tileByte.Contains(structure[byteCount].tileByte)).preFabName;
                         byteCount++;
 
-                        //Debug.Log(prefabName.Replace("_", "-") + "," + structure.Count + "," + byteCount);
+                        Debug.Log(prefabName.Replace("_", "-") + "," + structure.Count + "," + byteCount);
 
                         switch (prefabName)
                         {
@@ -316,11 +311,11 @@ public class CreatePrefabEditor
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
-                                    //Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
+                                    Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
                                     childTileObject = UnityEngine.Object.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
                                     foreach (Transform child in childTileObject.transform)
                                     {
-                                       // child.transform.SetParent(childTileObject.transform, false);
+                                        // child.transform.SetParent(childTileObject.transform, false);
                                         //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
 
                                         child.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
@@ -329,16 +324,16 @@ public class CreatePrefabEditor
 
                                     childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
 
-                                    
+
                                     //BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
                                     //_bc.center = new Vector3(0, 50, 0);
 
                                     childTileObject.transform.SetParent(currentStructure.transform, false);
 
-                                    
+
                                     // All Tiles get colliders
                                     BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
-                                   // _bc.center = new Vector3(0, 50, 0);
+                                    // _bc.center = new Vector3(0, 50, 0);
                                     _bc.size = new Vector3(100, 100, 100);
                                 }
                                 break;
@@ -355,7 +350,7 @@ public class CreatePrefabEditor
 
             currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
 
-         
+
 
             //currentStructure.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
 
@@ -412,11 +407,11 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "2C", preFabName = "br-c-lava-orange-base" });
 
         // Brinstar: Hall blue ( NOT WORKING.. REPLACE WITH br-m-brick-aqua FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-m-hall-blue" });
+        tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-c-hall-blue" });
         //tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-m-brick-aqua" });
 
         // Brinstar: hollow tubes no window roll through???
-        tileMap.Add(new tileMapperList() { tileByte = "03", preFabName = "br-m-tube-hori-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "03", preFabName = "br-m-tube-aqua-hori" });
 
         //Brinstar: Aqua Rock
         tileMap.Add(new tileMapperList() { tileByte = "08", preFabName = "br-m-rock-aqua" });
@@ -429,8 +424,8 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "0C", preFabName = "br-c-statue-aqua" });
 
         // Brinstar: Blue balls ( NOT WORKING.. REPLACE WITH POT AQUA FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-m-bubble-quad-purple" });
-        tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-m-bubble-quad-purple" });
+        tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-c-balls-purple" });
+        tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-c-balls-purple" });
         //tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-c-pot-aqua" });
         //tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-c-pot-aqua" });
 
@@ -438,12 +433,15 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "17", preFabName = "br-m-pillar-aqua" });
 
         // Brinstar: Pillbrick  ( NOT WORKING REPLACE WITH POT AQUA FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "1A", preFabName = "br-m-pillbrick2-blue" });
+        tileMap.Add(new tileMapperList() { tileByte = "1A", preFabName = "br-c-pillbrick-blue" });
         //tileMap.Add(new tileMapperList() { tileByte = "1A", preFabName = "br-c-pot-aqua" });
 
 
 
         tileMap.Add(new tileMapperList() { tileByte = "1C", preFabName = "br-c-brush-aqua" });
+
+
+        
 
         // Brinstar: Bush Aqua (temp set to brush due to difficulties with the bush tile
         tileMap.Add(new tileMapperList() { tileByte = "1D", preFabName = "br-c-bush-aqua" });
@@ -452,7 +450,7 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "1F", preFabName = "br-m-pot-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "20", preFabName = "br-m-vent-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "22", preFabName = "br-m-ball" });
-        tileMap.Add(new tileMapperList() { tileByte = "23", preFabName = "br-m-brick-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "23", preFabName = "br-c-brick-aqua" });
 
         tileMap.Add(new tileMapperList() { tileByte = "30", preFabName = "br-m-bubble-lone-purple" });
 
@@ -461,7 +459,7 @@ public class CreatePrefabEditor
         //tileMap.Add(new tileMapperList() { tileByte = "33", preFabName = "br-c-fence-purple" });
 
 
-        tileMap.Add(new tileMapperList() { tileByte = "34", preFabName = "br-m-tube-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "34", preFabName = "br-c-pillar-aqua" });
 
 
 
@@ -471,8 +469,8 @@ public class CreatePrefabEditor
 
 
         //Brinstar: Brick Aqua ( NOT WORKING REPLACE WITH VENTS FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "1E", preFabName = "br-m-brick-aqua" });
-        tileMap.Add(new tileMapperList() { tileByte = "2E", preFabName = "br-m-brick-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "1E", preFabName = "br-c-brick-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "2E", preFabName = "br-c-brick-aqua" });
 
 
         //Brinstar: Need 1:1 of tube-hori-aqua using br-m-brick-aqua for now
@@ -870,6 +868,270 @@ public class CreatePrefabEditor
         childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-m-vent-white"), new Vector3(0 + 0, (-2 + 25), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
     }
 
+    public static void mapMaker(string fileName)
+    {
+        //254E
+
+        // Setup the binary stream reader to take read in the hex values
+        Stream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+        // Assign the virtual file to read the data stream into
+        BinaryReader brFile = new BinaryReader(fileStream);
+
+        // Set the initial position to read data from in the file using a hexadecimal offset (Where the data is in the file.
+        // This is the first byte of the targetted structure)
+        fileStream.Position = 0x254E;
+
+        // Create an array to store our map structure
+        mapStructure = new string[32][];
+        for (int i = 0; i < mapStructure.Length; i++)
+        {
+            mapStructure[i] = new string[32];
+        }
+
+        for (int rows = 0; rows < 32; rows++)
+        {
+            for (int cols = 0; cols < 32; cols++)
+            {
+                mapStructure[rows][cols] = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+
+                //int blankOffsetX = rows;
+                //int blankOffsetY = cols;
+
+                //if (mapStructure[rows][cols] != "FF")
+                //{
+                //    buildSingleRoom("BRINSTAR", mapStructure[rows][cols], rows * 16, cols * 16);
+                //}
+                //else
+                //{
+                //    buildSingleRoom("BRINSTAR", "08", rows * 16, cols * 16);
+                //}
+
+                
+            }
+        }
+
+        //MessageBox.Show(mapStructure[14][2].ToString());
+        //string mapData = HexStr(brFile.ReadBytes(1024)).Replace("0x", "");
+
+        //dataBox.Text = mapData;
+
+
+    }
+
+
+    private static void buildRoomLists()
+    {
+        roomDataList.Add(new roomDataList() { nesRoomNum = "08", topByte = 0x6334, bottomByte = 0x6335, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+
+        roomDataList.Add(new roomDataList() { nesRoomNum = "17", topByte = 0x6352, bottomByte = 0x6353, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "09", topByte = 0x6336, bottomByte = 0x6337, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x634C, bottomByte = 0x634D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0x634A, bottomByte = 0x634B, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0x6324, bottomByte = 0x6325, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0x6326, bottomByte = 0x6327, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0x6328, bottomByte = 0x6329, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "03", topByte = 0x632A, bottomByte = 0x632B, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "04", topByte = 0x632C, bottomByte = 0x632D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "05", topByte = 0x632E, bottomByte = 0x632F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "06", topByte = 0x6330, bottomByte = 0x6331, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "07", topByte = 0x6332, bottomByte = 0x6333, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0x6338, bottomByte = 0x6339, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0x633A, bottomByte = 0x633B, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0x633C, bottomByte = 0x633D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0x633E, bottomByte = 0x633F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0x6340, bottomByte = 0x6341, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0x6342, bottomByte = 0x6343, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0x6344, bottomByte = 0x6345, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0x6346, bottomByte = 0x6347, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0x6348, bottomByte = 0x6349, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "15", topByte = 0x634E, bottomByte = 0x634F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "16", topByte = 0x6350, bottomByte = 0x6351, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "18", topByte = 0x6354, bottomByte = 0x6355, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "19", topByte = 0x6356, bottomByte = 0x6357, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1A", topByte = 0x6358, bottomByte = 0x6359, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1B", topByte = 0x635A, bottomByte = 0x635B, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1C", topByte = 0x635C, bottomByte = 0x635D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1D", topByte = 0x635E, bottomByte = 0x635F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1E", topByte = 0x6360, bottomByte = 0x6361, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1F", topByte = 0x6362, bottomByte = 0x6363, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "20", topByte = 0x6364, bottomByte = 0x6365, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "21", topByte = 0x6366, bottomByte = 0x6367, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "22", topByte = 0x6368, bottomByte = 0x6369, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "23", topByte = 0x636A, bottomByte = 0x636B, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "24", topByte = 0x636C, bottomByte = 0x636D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "25", topByte = 0x636E, bottomByte = 0x636F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "26", topByte = 0x6370, bottomByte = 0x6371, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "27", topByte = 0x6372, bottomByte = 0x6373, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "28", topByte = 0x6374, bottomByte = 0x6375, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "29", topByte = 0x6376, bottomByte = 0x6377, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2A", topByte = 0x6378, bottomByte = 0x6379, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2B", topByte = 0x637A, bottomByte = 0x637B, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2C", topByte = 0x637C, bottomByte = 0x637D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2D", topByte = 0x637E, bottomByte = 0x637F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2E", topByte = 0x6380, bottomByte = 0x6381, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
+        
+        roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0xA22B, bottomByte = 0xA22C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0xA22D, bottomByte = 0xA22E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0xA22F, bottomByte = 0xA230, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "03", topByte = 0xA231, bottomByte = 0xA232, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "04", topByte = 0xA233, bottomByte = 0xA234, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "05", topByte = 0xA235, bottomByte = 0xA236, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "06", topByte = 0xA237, bottomByte = 0xA238, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "07", topByte = 0xA239, bottomByte = 0xA23A, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "08", topByte = 0xA23B, bottomByte = 0xA23C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "09", topByte = 0xA23D, bottomByte = 0xA23E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0xA23F, bottomByte = 0xA240, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0xA241, bottomByte = 0xA242, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0xA243, bottomByte = 0xA244, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0xA245, bottomByte = 0xA246, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0xA247, bottomByte = 0xA248, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0xA249, bottomByte = 0xA24A, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0xA24B, bottomByte = 0xA24C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0xA24D, bottomByte = 0xA24E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0xA24F, bottomByte = 0xA250, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0xA251, bottomByte = 0xA252, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0xA253, bottomByte = 0xA254, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "15", topByte = 0xA255, bottomByte = 0xA256, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "16", topByte = 0xA257, bottomByte = 0xA258, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "17", topByte = 0xA259, bottomByte = 0xA25A, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "18", topByte = 0xA25B, bottomByte = 0xA25C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "19", topByte = 0xA25D, bottomByte = 0xA25E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1A", topByte = 0xA25F, bottomByte = 0xA260, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1B", topByte = 0xA261, bottomByte = 0xA262, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1C", topByte = 0xA263, bottomByte = 0xA264, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1D", topByte = 0xA265, bottomByte = 0xA266, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1E", topByte = 0xA267, bottomByte = 0xA268, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "1F", topByte = 0xA269, bottomByte = 0xA26A, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "20", topByte = 0xA26B, bottomByte = 0xA26C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "21", topByte = 0xA26D, bottomByte = 0xA26E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "22", topByte = 0xA26F, bottomByte = 0xA270, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "23", topByte = 0xA271, bottomByte = 0xA272, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "24", topByte = 0xA273, bottomByte = 0xA274, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "25", topByte = 0xA275, bottomByte = 0xA276, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "26", topByte = 0xA277, bottomByte = 0xA278, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "27", topByte = 0xA279, bottomByte = 0xA27A, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "28", topByte = 0xA27B, bottomByte = 0xA27C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "29", topByte = 0xA27D, bottomByte = 0xA27E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2A", topByte = 0xA27F, bottomByte = 0xA280, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2B", topByte = 0xA281, bottomByte = 0xA282, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2C", topByte = 0xA283, bottomByte = 0xA284, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "2D", topByte = 0xA285, bottomByte = 0xA286, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
+        
+        roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0xE7E1, bottomByte = 0xE7E2, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0xE7E3, bottomByte = 0xE7E4, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0xE7E5, bottomByte = 0xE7E6, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "03", topByte = 0xE7E7, bottomByte = 0xE7E8, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "04", topByte = 0xE7E9, bottomByte = 0xE7EA, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "05", topByte = 0xE7EB, bottomByte = 0xE7EC, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "06", topByte = 0xE7ED, bottomByte = 0xE7EE, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "07", topByte = 0xE7EF, bottomByte = 0xE7F0, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "08", topByte = 0xE7F1, bottomByte = 0xE7F2, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "09", topByte = 0xE7F3, bottomByte = 0xE7F4, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0xE7F5, bottomByte = 0xE7F6, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0xE7F7, bottomByte = 0xE7F8, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0xE7F9, bottomByte = 0xE7FA, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0xE7FB, bottomByte = 0xE7FC, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0xE7FD, bottomByte = 0xE7FE, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0xE7FF, bottomByte = 0xE800, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0xE801, bottomByte = 0xE802, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0xE803, bottomByte = 0xE804, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0xE805, bottomByte = 0xE806, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0xE807, bottomByte = 0xE808, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0xE809, bottomByte = 0xE80A, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
+        
+        roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0x121E5, bottomByte = 0x121E6, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0x121E7, bottomByte = 0x121E8, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0x121E9, bottomByte = 0x121EA, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "03", topByte = 0x121EB, bottomByte = 0x121EC, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "04", topByte = 0x121ED, bottomByte = 0x121EE, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "05", topByte = 0x121EF, bottomByte = 0x121F0, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "06", topByte = 0x121F1, bottomByte = 0x121F2, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "07", topByte = 0x121F3, bottomByte = 0x121F4, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "08", topByte = 0x121F5, bottomByte = 0x121F6, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "09", topByte = 0x121F7, bottomByte = 0x121F8, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0x121F9, bottomByte = 0x121FA, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0x121FB, bottomByte = 0x121FC, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0x121FD, bottomByte = 0x121FE, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0x121FF, bottomByte = 0x12200, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0x12201, bottomByte = 0x12202, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0x12203, bottomByte = 0x12204, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0x12205, bottomByte = 0x12206, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0x12207, bottomByte = 0x12208, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0x12209, bottomByte = 0x1220A, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0x1220B, bottomByte = 0x1220C, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x1220D, bottomByte = 0x1220E, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0x1220F, bottomByte = 0x12210, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0x12211, bottomByte = 0x12212, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0x12213, bottomByte = 0x12214, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0x12215, bottomByte = 0x12216, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x12217, bottomByte = 0x12218, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "15", topByte = 0x12219, bottomByte = 0x1221A, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "16", topByte = 0x1221B, bottomByte = 0x1221C, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "17", topByte = 0x1221D, bottomByte = 0x1221E, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "18", topByte = 0x1221F, bottomByte = 0x12220, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "19", topByte = 0x12221, bottomByte = 0x12222, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0x12223, bottomByte = 0x12224, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0x12225, bottomByte = 0x12226, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0x12227, bottomByte = 0x12228, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0x12229, bottomByte = 0x1222A, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0x1222B, bottomByte = 0x1222C, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0x1222D, bottomByte = 0x1222E, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
+        
+        roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0x1618F, bottomByte = 0x16190, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0x16191, bottomByte = 0x16192, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0x16193, bottomByte = 0x16194, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "03", topByte = 0x16195, bottomByte = 0x16196, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "04", topByte = 0x16197, bottomByte = 0x16198, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "05", topByte = 0x16199, bottomByte = 0x1619A, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "06", topByte = 0x1619B, bottomByte = 0x1619C, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "07", topByte = 0x1619D, bottomByte = 0x1619E, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "08", topByte = 0x1619F, bottomByte = 0x161A0, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "09", topByte = 0x161A1, bottomByte = 0x161A2, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0x161A3, bottomByte = 0x161A4, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0x161A5, bottomByte = 0x161A6, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0x161A7, bottomByte = 0x161A8, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0x161A9, bottomByte = 0x161AA, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0x161AB, bottomByte = 0x161AC, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0x161AD, bottomByte = 0x161AE, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0x161AF, bottomByte = 0x161B0, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0x161B1, bottomByte = 0x161B2, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0x161B3, bottomByte = 0x161B4, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0x161B5, bottomByte = 0x161B6, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x161B7, bottomByte = 0x161B8, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0x161B9, bottomByte = 0x161BA, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0x161BB, bottomByte = 0x161BC, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0x161BD, bottomByte = 0x161BE, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0x161BF, bottomByte = 0x161C0, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x161C1, bottomByte = 0x161C2, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "15", topByte = 0x161C3, bottomByte = 0x161C4, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "16", topByte = 0x161C5, bottomByte = 0x161C6, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "17", topByte = 0x161C7, bottomByte = 0x161C8, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "18", topByte = 0x161C9, bottomByte = 0x161CA, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "19", topByte = 0x161CB, bottomByte = 0x161CC, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0A", topByte = 0x161CD, bottomByte = 0x161CE, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0B", topByte = 0x161CF, bottomByte = 0x161D0, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0C", topByte = 0x161D1, bottomByte = 0x161D2, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0x161D3, bottomByte = 0x161D4, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0x161D5, bottomByte = 0x161D6, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0x161D7, bottomByte = 0x161D8, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "10", topByte = 0x161D9, bottomByte = 0x161DA, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "11", topByte = 0x161DB, bottomByte = 0x161DC, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0x161DD, bottomByte = 0x161DE, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0x161DF, bottomByte = 0x161E0, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+        roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x161E1, bottomByte = 0x161E2, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
+    }
+
+    private static void buildSingleRoom(string areaName, string roomNumber, int xScenePositionStart, int yScenePositionStart)
+    {
+        Debug.Log(areaName + " , " + roomNumber + " , " + xScenePositionStart.ToString() + " , " + yScenePositionStart.ToString());
+
+        var currentRoom = roomDataList.Find(room => room.areaName.Contains(areaName) && room.nesRoomNum.Contains(roomNumber));
+
+        
+
+        buildRoomDataRef("Assets/Resources/test.data", areaName, roomNumber, currentRoom.bottomByte, currentRoom.topByte, xScenePositionStart, yScenePositionStart, currentRoom.bankOffset, currentRoom.baseMemoryAddress);
+    }
 
     [MenuItem("MetroidVR/Maya Export Test")]
     private static void testMaya()
@@ -888,10 +1150,206 @@ public class CreatePrefabEditor
 
         // Make sure the plane created is set to 0,0,0 coords
         sceneParent.transform.position += new Vector3(0, 0, 0);
-        
+
 
         // Load the static list of Prefab<->Structure mapping data
         loadRuntimeVariables();
+
+        // Build the room lists
+        buildRoomLists();
+
+        // Generate the map based on the original data structure
+        //mapMaker(@"C:\\temp\test.data");
+
+
+        buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15);
+
+        // 1st Cross section that goes up and down
+        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15);
+
+        // Verticle shaft 1 mid secction
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15);
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15);
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15);
+        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15);
+
+        // Verticle shaft 1 bottom secction
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15);
+        
+        // Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
+        buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15);
+
+        // Past first coordidor until the second verticle cooridor
+        buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15);
+
+        // Verticle Shaft 2 Bottom section
+        buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15);
+
+        // Verticle Shaft 2 mid section
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -1 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -2 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -4 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -6 * 15);
+
+        // Veritcle Shaft 2 Mid section / right exit
+        buildSingleRoom("BRINSTAR", "03", 10 * 16, -7 * 15);
+
+        // Palette switch room for Brinstar
+        buildSingleRoom("BRINSTAR", "00", 11 * 16, -7 * 15);
+
+        // Verticle Shaft 2 mid section cont
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -8 * 15);
+
+        // Veritcle Shaft 2 Mid section / Left exit
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, -9 * 15);
+
+        // Mid horizontal section
+        buildSingleRoom("BRINSTAR", "28", 9 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "29", 8 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 7 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 6 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, -9 * 15);
+
+        // Veritcle Shaft 2 Mid section / Above left mid exit
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -10 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, -12 * 15);
+
+        // Verticle Shaft 2 top section
+        buildSingleRoom("BRINSTAR", "08", 10 * 16, -13 * 15);
+
+        // Top horizontal section 
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "14", 8 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "16", 7 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "15", 6 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "15", 5 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "27", 4 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "2B", 3 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "2C", 2 * 16, -12 * 15);
+
+
+        // Verticle Shaft 3 
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -2 * 15);
+
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
+
+        // Verticle Shaft top door branch horizontal
+        buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15);
+
+        buildSingleRoom("BRINSTAR", "1E", 19 * 16, -11 * 15);
+        //Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 19 * 16, -13 * 15);
+        buildSingleRoom("BRINSTAR", "2E", 19 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "28", 18 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "29", 17 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "29", 16 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 15 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 14 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "08", 13 * 16, -12 * 15);
+
+        buildSingleRoom("BRINSTAR", "1F", 20 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "21", 21 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "21", 22 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "07", 23 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "22", 24 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "1D", 25 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "1B", 26 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "21", 27 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "20", 28 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -11 * 15);
+        // Verticle Shaft upper right branch hori/vert
+        buildSingleRoom("BRINSTAR", "08", 29 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "02", 29 * 16, -10 * 15);
+
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "28", 28 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "29", 27 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "29", 26 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 25 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 24 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "08", 23 * 16, -9 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 29 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "08", 29 * 16, -6 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -4 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "05", 12 * 16, -7 * 15);
+
+        // Verticle Shaft mid door branch horizontal
+        buildSingleRoom("BRINSTAR", "0C", 13 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 14 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 15 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0D", 16 * 16, -7 * 15);
+
+        buildSingleRoom("BRINSTAR", "10", 17 * 16, -7 * 15);
+        // Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "11", 17 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "11", 17 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -4 * 15);
+
+        buildSingleRoom("BRINSTAR", "0C", 18 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0F", 19 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0D", 20 * 16, -7 * 15);
+
+        buildSingleRoom("BRINSTAR", "10", 21 * 16, -7 * 15);
+        // Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "06", 21 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "04", 21 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -4 * 15);
+
+        buildSingleRoom("BRINSTAR", "28", 20 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 19 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 18 * 16, -5 * 15);
+
+        buildSingleRoom("BRINSTAR", "0C", 22 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 23 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "1B", 24 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0F", 25 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 26 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0F", 27 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0D", 28 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -7 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -10 * 15);
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
+
+        // Verticle Shaft bottom door branch horizontal
+        buildSingleRoom("BRINSTAR", "12", 13 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "14", 14 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "15", 15 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "14", 16 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "07", 17 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "16", 18 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "15", 19 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "13", 20 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "0B", 21 * 16, -3 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
+
+
 
 
         // Path to the nes rom for Metroid US
@@ -928,11 +1386,14 @@ public class CreatePrefabEditor
 
         // So here I am saying make the first 5 rooms that make up the first area.  It's technical in nature obviously, but its how the nes represents it all.
         // Brinstar starting area
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "08", 0x6335, 0x6334, 0, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "17", 0x6353, 0x6352, 16, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "09", 0x6337, 0x6336, 32, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
-        buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
+
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "08", 0x6335, 0x6334, 0, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "17", 0x6353, 0x6352, 16, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "09", 0x6337, 0x6336, 32, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
+        //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
+
+
 
         GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
