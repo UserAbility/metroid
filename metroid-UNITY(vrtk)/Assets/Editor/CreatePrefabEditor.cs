@@ -407,7 +407,7 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "2D", preFabName = "br-c-lava-orange-base" });
 
         // Brinstar: Hall blue ( NOT WORKING.. REPLACE WITH br-m-brick-aqua FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-c-hall-blue" });
+        tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-m-hall-blue" });
         //tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-m-brick-aqua" });
 
         // Brinstar: hollow tubes no window roll through???
@@ -424,8 +424,8 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "0C", preFabName = "br-c-statue-aqua" });
 
         // Brinstar: Blue balls ( NOT WORKING.. REPLACE WITH POT AQUA FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-c-balls-purple" });
-        tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-c-balls-purple" });
+        tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-m-balls-purple" });
+        tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-m-balls-purple" });
         //tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-c-pot-aqua" });
         //tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-c-pot-aqua" });
 
@@ -450,7 +450,7 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "1F", preFabName = "br-m-pot-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "20", preFabName = "br-m-vent-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "22", preFabName = "br-m-ball" });
-        tileMap.Add(new tileMapperList() { tileByte = "23", preFabName = "br-c-brick-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "23", preFabName = "br-m-brick-aqua" });
 
         tileMap.Add(new tileMapperList() { tileByte = "30", preFabName = "br-m-bubble-lone-purple" });
 
