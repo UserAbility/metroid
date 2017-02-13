@@ -395,86 +395,37 @@ public class CreatePrefabEditor
     {
 
         // Add each related byte <-> prefab name mapping
-
-        // Brinstar: Lava base
         tileMap.Add(new tileMapperList() { tileByte = "01", preFabName = "br-c-lava-orange-top" });
         tileMap.Add(new tileMapperList() { tileByte = "15", preFabName = "br-c-lava-orange-top" });
         tileMap.Add(new tileMapperList() { tileByte = "2C", preFabName = "br-c-lava-orange-top" });
-
-        // Brinstar: Lava top 
         tileMap.Add(new tileMapperList() { tileByte = "00", preFabName = "br-c-lava-orange-base" });
         tileMap.Add(new tileMapperList() { tileByte = "16", preFabName = "br-c-lava-orange-base" });
         tileMap.Add(new tileMapperList() { tileByte = "2D", preFabName = "br-c-lava-orange-base" });
-
-        // Brinstar: Hall blue ( NOT WORKING.. REPLACE WITH br-m-brick-aqua FOR NOW )
         tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-m-hall-blue" });
-        //tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-m-brick-aqua" });
-
-        // Brinstar: hollow tubes no window roll through???
         tileMap.Add(new tileMapperList() { tileByte = "03", preFabName = "br-m-tube-aqua-hori" });
-
-        //Brinstar: Aqua Rock
         tileMap.Add(new tileMapperList() { tileByte = "08", preFabName = "br-m-rock-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "24", preFabName = "br-m-rock-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "29", preFabName = "br-m-rock-aqua" });
-
-
         tileMap.Add(new tileMapperList() { tileByte = "0A", preFabName = "br-m-rockR-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "09", preFabName = "br-m-rockL-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "0C", preFabName = "br-c-statue-aqua" });
-
-        // Brinstar: Blue balls ( NOT WORKING.. REPLACE WITH POT AQUA FOR NOW )
         tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-m-balls-purple" });
         tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-m-balls-purple" });
-        //tileMap.Add(new tileMapperList() { tileByte = "0D", preFabName = "br-c-pot-aqua" });
-        //tileMap.Add(new tileMapperList() { tileByte = "2F", preFabName = "br-c-pot-aqua" });
-
-
         tileMap.Add(new tileMapperList() { tileByte = "17", preFabName = "br-m-pillar-aqua" });
-
-        // Brinstar: Pillbrick  ( NOT WORKING REPLACE WITH POT AQUA FOR NOW )
         tileMap.Add(new tileMapperList() { tileByte = "1A", preFabName = "br-c-pillbrick-blue" });
-        //tileMap.Add(new tileMapperList() { tileByte = "1A", preFabName = "br-c-pot-aqua" });
-
-
-
         tileMap.Add(new tileMapperList() { tileByte = "1C", preFabName = "br-c-brush-aqua" });
-
-
-        
-
-        // Brinstar: Bush Aqua (temp set to brush due to difficulties with the bush tile
         tileMap.Add(new tileMapperList() { tileByte = "1D", preFabName = "br-c-bush-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "2A", preFabName = "br-c-bush-aqua" });
-
         tileMap.Add(new tileMapperList() { tileByte = "1F", preFabName = "br-m-pot-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "20", preFabName = "br-m-vent-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "22", preFabName = "br-m-ball" });
         tileMap.Add(new tileMapperList() { tileByte = "23", preFabName = "br-m-brick-aqua" });
-
         tileMap.Add(new tileMapperList() { tileByte = "30", preFabName = "br-m-bubble-lone-purple" });
-
-        //Brinstar: br-c-foam-aqua size appears to off. Is it 1:1 scale like the other tiles?
         tileMap.Add(new tileMapperList() { tileByte = "33", preFabName = "br-m-foam-aqua" });
-        //tileMap.Add(new tileMapperList() { tileByte = "33", preFabName = "br-c-fence-purple" });
-
-
         tileMap.Add(new tileMapperList() { tileByte = "34", preFabName = "br-m-pillar-aqua" });
-
-
-
-        //Brinstar: Need 1:1 of spiral-aqua using br-m-brick-white for now
         tileMap.Add(new tileMapperList() { tileByte = "36", preFabName = "br-c-spiral-blue" });
-        //tileMap.Add(new tileMapperList() { tileByte = "36", preFabName = "br-m-brick-white" });
-
-
-        //Brinstar: Brick Aqua ( NOT WORKING REPLACE WITH VENTS FOR NOW )
-        tileMap.Add(new tileMapperList() { tileByte = "1E", preFabName = "br-c-brick-aqua" });
-        tileMap.Add(new tileMapperList() { tileByte = "2E", preFabName = "br-c-brick-aqua" });
-
-
-        //Brinstar: Need 1:1 of tube-hori-aqua using br-m-brick-aqua for now
-
+        tileMap.Add(new tileMapperList() { tileByte = "1E", preFabName = "br-m-brick-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "2E", preFabName = "br-m-brick-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "1B", preFabName = "br-m-pillar-hori-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "2B", preFabName = "br-m-pillar-hori-aqua" });
         tileMap.Add(new tileMapperList() { tileByte = "35", preFabName = "br-m-pillar-hori-aqua" });
@@ -514,8 +465,8 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "28", preFabName = "blank" });
 
         // TEMP MAPPING FOR THE 2 piece BLUE BUSH
-        tileMap.Add(new tileMapperList() { tileByte = "3E", preFabName = "br-c-bush-blue" });
-        tileMap.Add(new tileMapperList() { tileByte = "3F", preFabName = "br-c-bush-blueB" });
+        tileMap.Add(new tileMapperList() { tileByte = "3E", preFabName = "br-m-bush_blueA" });
+        tileMap.Add(new tileMapperList() { tileByte = "3F", preFabName = "br-m-bush_blueB" });
 
         // TEMP MAPPING FOR THE 2 PIECE PIPE set to br-c-vent-aqua until tiles are made
         tileMap.Add(new tileMapperList() { tileByte = "31", preFabName = "br-c-pipe-aquaA" });
