@@ -397,14 +397,14 @@ public class CreatePrefabEditor
         // Add each related byte <-> prefab name mapping
 
         // Brinstar: Lava base
-        tileMap.Add(new tileMapperList() { tileByte = "00", preFabName = "br-c-lava-orange-top" });
-        tileMap.Add(new tileMapperList() { tileByte = "16", preFabName = "br-c-lava-orange-top" });
-        tileMap.Add(new tileMapperList() { tileByte = "2D", preFabName = "br-c-lava-orange-top" });
+        tileMap.Add(new tileMapperList() { tileByte = "01", preFabName = "br-c-lava-orange-top" });
+        tileMap.Add(new tileMapperList() { tileByte = "15", preFabName = "br-c-lava-orange-top" });
+        tileMap.Add(new tileMapperList() { tileByte = "2C", preFabName = "br-c-lava-orange-top" });
 
         // Brinstar: Lava top 
-        tileMap.Add(new tileMapperList() { tileByte = "01", preFabName = "br-c-lava-orange-base" });
-        tileMap.Add(new tileMapperList() { tileByte = "15", preFabName = "br-c-lava-orange-base" });
-        tileMap.Add(new tileMapperList() { tileByte = "2C", preFabName = "br-c-lava-orange-base" });
+        tileMap.Add(new tileMapperList() { tileByte = "00", preFabName = "br-c-lava-orange-base" });
+        tileMap.Add(new tileMapperList() { tileByte = "16", preFabName = "br-c-lava-orange-base" });
+        tileMap.Add(new tileMapperList() { tileByte = "2D", preFabName = "br-c-lava-orange-base" });
 
         // Brinstar: Hall blue ( NOT WORKING.. REPLACE WITH br-m-brick-aqua FOR NOW )
         tileMap.Add(new tileMapperList() { tileByte = "02", preFabName = "br-c-hall-blue" });
@@ -459,7 +459,7 @@ public class CreatePrefabEditor
         //tileMap.Add(new tileMapperList() { tileByte = "33", preFabName = "br-c-fence-purple" });
 
 
-        tileMap.Add(new tileMapperList() { tileByte = "34", preFabName = "br-c-pillar-aqua" });
+        tileMap.Add(new tileMapperList() { tileByte = "34", preFabName = "br-m-pillar-aqua" });
 
 
 
@@ -514,12 +514,12 @@ public class CreatePrefabEditor
         tileMap.Add(new tileMapperList() { tileByte = "28", preFabName = "blank" });
 
         // TEMP MAPPING FOR THE 2 piece BLUE BUSH
-        tileMap.Add(new tileMapperList() { tileByte = "3E", preFabName = "br-c-bush-blueB" });
-        tileMap.Add(new tileMapperList() { tileByte = "3F", preFabName = "br-c-bush-blue" });
+        tileMap.Add(new tileMapperList() { tileByte = "3E", preFabName = "br-c-bush-blue" });
+        tileMap.Add(new tileMapperList() { tileByte = "3F", preFabName = "br-c-bush-blueB" });
 
         // TEMP MAPPING FOR THE 2 PIECE PIPE set to br-c-vent-aqua until tiles are made
-        tileMap.Add(new tileMapperList() { tileByte = "31", preFabName = "br-c-pipe-aquaB" });
-        tileMap.Add(new tileMapperList() { tileByte = "32", preFabName = "br-c-pipe-aquaA" });
+        tileMap.Add(new tileMapperList() { tileByte = "31", preFabName = "br-c-pipe-aquaA" });
+        tileMap.Add(new tileMapperList() { tileByte = "32", preFabName = "br-c-pipe-aquaB" });
 
     }
 
