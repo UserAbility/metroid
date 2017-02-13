@@ -10,6 +10,7 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: spine_blue_cube
+    4300002: spine_blue_c
   materials:
     importMaterials: 1
     materialName: 0
