@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -9,7 +8,7 @@ using System.Collections.Generic;
 
 public class CreatePrefabEditor
 {
-   
+
     public Transform player;
     public Transform floor_valid;
     public Transform floor_obstacle;
@@ -858,7 +857,7 @@ public class CreatePrefabEditor
                 //    buildSingleRoom("BRINSTAR", "08", rows * 16, cols * 16);
                 //}
 
-                
+
             }
         }
 
@@ -921,7 +920,7 @@ public class CreatePrefabEditor
         roomDataList.Add(new roomDataList() { nesRoomNum = "2C", topByte = 0x637C, bottomByte = 0x637D, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "2D", topByte = 0x637E, bottomByte = 0x637F, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "2E", topByte = 0x6380, bottomByte = 0x6381, bankOffset = 0x4011, baseMemoryAddress = 0x8000, areaName = "BRINSTAR" });
-        
+
         roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0xA22B, bottomByte = 0xA22C, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0xA22D, bottomByte = 0xA22E, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0xA22F, bottomByte = 0xA230, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
@@ -968,7 +967,7 @@ public class CreatePrefabEditor
         roomDataList.Add(new roomDataList() { nesRoomNum = "2B", topByte = 0xA281, bottomByte = 0xA282, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "2C", topByte = 0xA283, bottomByte = 0xA284, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "2D", topByte = 0xA285, bottomByte = 0xA286, bankOffset = 0x8011, baseMemoryAddress = 0x8000, areaName = "NORFAIR" });
-        
+
         roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0xE7E1, bottomByte = 0xE7E2, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0xE7E3, bottomByte = 0xE7E4, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0xE7E5, bottomByte = 0xE7E6, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
@@ -990,7 +989,7 @@ public class CreatePrefabEditor
         roomDataList.Add(new roomDataList() { nesRoomNum = "12", topByte = 0xE805, bottomByte = 0xE806, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "13", topByte = 0xE807, bottomByte = 0xE808, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0xE809, bottomByte = 0xE80A, bankOffset = 0xC011, baseMemoryAddress = 0x8000, areaName = "TOURIAN" });
-        
+
         roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0x121E5, bottomByte = 0x121E6, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0x121E7, bottomByte = 0x121E8, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0x121E9, bottomByte = 0x121EA, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
@@ -1028,7 +1027,7 @@ public class CreatePrefabEditor
         roomDataList.Add(new roomDataList() { nesRoomNum = "0D", topByte = 0x12229, bottomByte = 0x1222A, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "0E", topByte = 0x1222B, bottomByte = 0x1222C, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "0F", topByte = 0x1222D, bottomByte = 0x1222E, bankOffset = 0x10011, baseMemoryAddress = 0x8000, areaName = "KRAIDS" });
-        
+
         roomDataList.Add(new roomDataList() { nesRoomNum = "00", topByte = 0x1618F, bottomByte = 0x16190, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "01", topByte = 0x16191, bottomByte = 0x16192, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
         roomDataList.Add(new roomDataList() { nesRoomNum = "02", topByte = 0x16193, bottomByte = 0x16194, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
@@ -1079,7 +1078,7 @@ public class CreatePrefabEditor
 
         var currentRoom = roomDataList.Find(room => room.areaName.Contains(areaName) && room.nesRoomNum.Contains(roomNumber));
 
-        
+
 
         buildRoomDataRef("Assets/Resources/test.data", areaName, roomNumber, currentRoom.bottomByte, currentRoom.topByte, xScenePositionStart, yScenePositionStart, currentRoom.bankOffset, currentRoom.baseMemoryAddress);
     }
@@ -1130,7 +1129,7 @@ public class CreatePrefabEditor
 
         // Verticle shaft 1 bottom secction
         buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15);
-        
+
         // Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
         buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15);
 
@@ -1343,9 +1342,7 @@ public class CreatePrefabEditor
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "09", 0x6337, 0x6336, 32, 0, 0x4011, 0x8000);
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
-
-
-
+                
         GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
 
