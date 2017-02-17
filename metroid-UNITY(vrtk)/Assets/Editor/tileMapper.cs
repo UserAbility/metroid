@@ -1,7 +1,14 @@
-﻿public class tileMapperList
+﻿using UnityEditor;
+using UnityEngine;
+
+public class tileMapperList
 {
     public string tileByte { get; set; }
     public string preFabName { get; set; }
+    public string areaName { get; set; }
+    public string imagePath { get; set; }
+    public GameObject gameObject { get; set; }
+    public int controlID { get; set; }
 }
 
 
@@ -24,3 +31,4 @@ public class roomDataList
     public string areaName { get; set; }
 
 }
+

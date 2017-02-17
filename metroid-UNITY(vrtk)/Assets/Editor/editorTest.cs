@@ -2,13 +2,14 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PrefabSwap : EditorWindow
+public class PrefabReplacement : EditorWindow
 {
 
-    [MenuItem("MetroidVR/Prefab Swap")]
+    [MenuItem("MetroidVR/Prefab Replacement")]
     static void Do()
     {
-        GetWindow<PrefabSwap>();
+
+        EditorWindow.GetWindowWithRect(typeof(PrefabReplacement), new Rect(0, 0, 600, 350));
     }
 
     Object targetPreFab = null;
@@ -41,6 +42,10 @@ public class PrefabSwap : EditorWindow
 
     void OnGUI()
     {
+
+        GUILayout.BeginHorizontal();
+
+        GUILayout.BeginVertical();
         if (GUILayout.Button("Prefeb To Replace") && replacementPrefabWindow != 100)
         {
             //create a window picker control ID
@@ -48,16 +53,6 @@ public class PrefabSwap : EditorWindow
 
             //use the ID you just created
             EditorGUIUtility.ShowObjectPicker<GameObject>(null, false, "br-", targetPreFabWindow);
-        }
-
-
-        if (GUILayout.Button("Replacement Prefab") && replacementPrefabWindow != 101)
-        {
-            //create a window picker control ID
-            replacementPrefabWindow = EditorGUIUtility.GetControlID(FocusType.Passive) + 101;
-
-            //use the ID you just created
-            EditorGUIUtility.ShowObjectPicker<GameObject>(null, false, "br-", replacementPrefabWindow);
         }
 
         if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == targetPreFabWindow)
@@ -69,6 +64,33 @@ public class PrefabSwap : EditorWindow
             //Repaint();
         }
 
+        if (targetObject != null)
+        {
+            if (prefabTargetPreview == null)
+            {
+                prefabTargetPreview = Editor.CreateEditor(targetObject);
+            }
+            else
+            {
+                prefabTargetPreview.OnPreviewGUI(GUILayoutUtility.GetRect(250, 250), GUIStyle.none);
+                Repaint();
+            }
+        }
+
+        GUILayout.EndVertical();
+
+        GUILayout.BeginVertical();
+        if (GUILayout.Button("Replacement Prefab") && replacementPrefabWindow != 101)
+        {
+            //create a window picker control ID
+            replacementPrefabWindow = EditorGUIUtility.GetControlID(FocusType.Passive) + 101;
+
+            //use the ID you just created
+            EditorGUIUtility.ShowObjectPicker<GameObject>(null, false, "br-", replacementPrefabWindow);
+        }
+
+
+
         if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == replacementPrefabWindow)
         {
             replacementPrefabName = EditorGUIUtility.GetObjectPickerObject().name;
@@ -79,19 +101,6 @@ public class PrefabSwap : EditorWindow
             // Repaint();
         }
 
-        if (targetObject != null)
-        {
-            if (prefabTargetPreview == null)
-            {
-                prefabTargetPreview = Editor.CreateEditor(targetObject);
-            }
-            else
-            { 
-                prefabTargetPreview.OnPreviewGUI(GUILayoutUtility.GetRect(250, 250), GUIStyle.none);
-            }
-        }
-
-
         if (replacementObject != null)
         {
             if (prefabReplacementPreview == null)
@@ -101,14 +110,18 @@ public class PrefabSwap : EditorWindow
             else
             {
                 prefabReplacementPreview.OnPreviewGUI(GUILayoutUtility.GetRect(250, 250), GUIStyle.none);
+                Repaint();
             }
 
         }
 
+        GUILayout.EndVertical();
+
+        GUILayout.EndHorizontal();
         if (GUILayout.Button("Proceed with replacement?") && targetPrefabName != null && replacementPrefabName != null)
         {
-            targetPrefabNameTB = GUI.TextField(new Rect(10, 100, 500, 200), targetPrefabName, 25);
-            replacementPrefabNameTB = GUI.TextField(new Rect(10, 130, 500, 200), replacementPrefabName, 25);
+            //targetPrefabNameTB = GUI.TextField(new Rect(10, 100, 500, 200), targetPrefabName, 25);
+           // replacementPrefabNameTB = GUI.TextField(new Rect(10, 130, 500, 200), replacementPrefabName, 25);
 
 
 
@@ -121,14 +134,14 @@ public class PrefabSwap : EditorWindow
                     {
                         if (targetObject.name.ToUpper().Replace("(CLONE)", "") == subChild.name.ToUpper().Replace("(CLONE)", ""))
                         {
-                            
+
 
                             GameObject newObject;
                             newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
                             newObject.transform.position = subChild.transform.position;
                             newObject.transform.rotation = subChild.transform.rotation;
                             newObject.transform.parent = subChild.transform.parent;
-                            DestroyImmediate(subChild.gameObject);
+                            DestroyImmediate(subChild.gameObject, true);
 
                         }
                     }
@@ -140,10 +153,12 @@ public class PrefabSwap : EditorWindow
 
             targetPrefabName = null;
             replacementPrefabName = null;
-            DestroyImmediate(targetObject.gameObject);
-            DestroyImmediate(replacementObject.gameObject);
+            DestroyImmediate(targetObject.gameObject, true);
+            DestroyImmediate(replacementObject.gameObject, true);
 
         }
+
+        
 
 
         //string commandName = Event.current.commandName;
