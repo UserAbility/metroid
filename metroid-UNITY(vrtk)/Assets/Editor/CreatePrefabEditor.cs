@@ -1128,8 +1128,219 @@ public class CreatePrefabEditor
         quickTester();
     }
 
-    [MenuItem("MetroidVR/Create Scene")]
-    private static void CreatePrefab()
+    [MenuItem("MetroidVR/Render Brinstar Complete")]
+    private static void CreatePrefabComplete()
+    {
+        // Create the plane automatically
+        var sceneParent = new GameObject("Plane");
+
+        // Make sure the plane created is set to 0,0,0 coords
+        sceneParent.transform.position += new Vector3(0, 0, 0);
+
+
+        // Load the static list of Prefab<->Structure mapping data
+        loadRuntimeVariables();
+
+        // Build the room lists
+        buildRoomLists();
+
+        // Generate the map based on the original data structure
+        //mapMaker(@"C:\\temp\test.data");
+
+
+        buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15);
+
+        // 1st Cross section that goes up and down
+        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15);
+
+        // Verticle shaft 1 mid secction
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15);
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15);
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15);
+        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15);
+
+        // Verticle shaft 1 bottom secction
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15);
+
+        // Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
+        buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15);
+
+        // Past first coordidor until the second verticle cooridor
+        buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15);
+
+        // Verticle Shaft 2 Bottom section
+        buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15);
+
+        // Verticle Shaft 2 mid section
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -1 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -2 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -4 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -6 * 15);
+
+        // Veritcle Shaft 2 Mid section / right exit
+        buildSingleRoom("BRINSTAR", "03", 10 * 16, -7 * 15);
+
+        // Palette switch room for Brinstar
+        buildSingleRoom("BRINSTAR", "00", 11 * 16, -7 * 15);
+
+        // Verticle Shaft 2 mid section cont
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -8 * 15);
+
+        // Veritcle Shaft 2 Mid section / Left exit
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, -9 * 15);
+
+        // Mid horizontal section
+        buildSingleRoom("BRINSTAR", "28", 9 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "29", 8 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 7 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 6 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, -9 * 15);
+
+        // Veritcle Shaft 2 Mid section / Above left mid exit
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -10 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, -12 * 15);
+
+        // Verticle Shaft 2 top section
+        buildSingleRoom("BRINSTAR", "08", 10 * 16, -13 * 15);
+
+        // Top horizontal section 
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "14", 8 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "16", 7 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "15", 6 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "15", 5 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "27", 4 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "2B", 3 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "2C", 2 * 16, -12 * 15);
+
+
+        // Verticle Shaft 3 
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -2 * 15);
+
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
+
+        // Verticle Shaft top door branch horizontal
+        buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15);
+
+        buildSingleRoom("BRINSTAR", "1E", 19 * 16, -11 * 15);
+        //Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 19 * 16, -13 * 15);
+        buildSingleRoom("BRINSTAR", "2E", 19 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "28", 18 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "29", 17 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "29", 16 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 15 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 14 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "08", 13 * 16, -12 * 15);
+
+        buildSingleRoom("BRINSTAR", "1F", 20 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "21", 21 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "21", 22 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "07", 23 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "22", 24 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "1D", 25 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "1B", 26 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "21", 27 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "20", 28 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -11 * 15);
+        // Verticle Shaft upper right branch hori/vert
+        buildSingleRoom("BRINSTAR", "08", 29 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "02", 29 * 16, -10 * 15);
+
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "28", 28 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "29", 27 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "29", 26 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 25 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 24 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "08", 23 * 16, -9 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 29 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "08", 29 * 16, -6 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -4 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "05", 12 * 16, -7 * 15);
+
+        // Verticle Shaft mid door branch horizontal
+        buildSingleRoom("BRINSTAR", "0C", 13 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 14 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 15 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0D", 16 * 16, -7 * 15);
+
+        buildSingleRoom("BRINSTAR", "10", 17 * 16, -7 * 15);
+        // Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "11", 17 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "11", 17 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -4 * 15);
+
+        buildSingleRoom("BRINSTAR", "0C", 18 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0F", 19 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0D", 20 * 16, -7 * 15);
+
+        buildSingleRoom("BRINSTAR", "10", 21 * 16, -7 * 15);
+        // Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "06", 21 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "04", 21 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -4 * 15);
+
+        buildSingleRoom("BRINSTAR", "28", 20 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "1A", 19 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 18 * 16, -5 * 15);
+
+        buildSingleRoom("BRINSTAR", "0C", 22 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 23 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "1B", 24 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0F", 25 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0E", 26 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0F", 27 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "0D", 28 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -7 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -8 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -9 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -10 * 15);
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
+
+        // Verticle Shaft bottom door branch horizontal
+        buildSingleRoom("BRINSTAR", "12", 13 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "14", 14 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "15", 15 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "14", 16 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "07", 17 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "16", 18 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "15", 19 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "13", 20 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "0B", 21 * 16, -3 * 15);
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
+
+
+
+    }
+
+    [MenuItem("MetroidVR/Render Brinstar First Area")]
+    private static void CreatePrefabFirstArea()
     {
 
         // Create the plane automatically
