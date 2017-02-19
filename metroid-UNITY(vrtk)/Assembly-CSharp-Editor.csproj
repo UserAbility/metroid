@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Editor\CreatePrefabEditor.cs" />
+     <Compile Include="Assets\Editor\XML_Serializer.cs" />
+     <Compile Include="Assets\Editor\editorTest.cs" />
+     <Compile Include="Assets\Editor\prefabMapper.cs" />
      <Compile Include="Assets\Editor\tileMapper.cs" />
      <Compile Include="Assets\OVR\Editor\OVRBuild.cs" />
      <Compile Include="Assets\OVR\Editor\OVRManifestPreprocessor.cs" />
