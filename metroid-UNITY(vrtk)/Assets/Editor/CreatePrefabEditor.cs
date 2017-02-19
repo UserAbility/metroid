@@ -649,6 +649,8 @@ public class CreatePrefabEditor
 
     }
 
+
+
     private static void quickTester()
     {
         GameObject childTileObject = null;
@@ -1118,6 +1120,49 @@ public class CreatePrefabEditor
 
 
         buildRoomDataRef("Assets/Resources/test.data", areaName, roomNumber, currentRoom.bottomByte, currentRoom.topByte, xScenePositionStart, yScenePositionStart, currentRoom.bankOffset, currentRoom.baseMemoryAddress);
+    }
+
+    [MenuItem("MetroidVR/Prefap Swap Troubleshooter")]
+    private static void testPrefabSwapper()
+    {
+       
+       
+
+        GameObject childTileObject = null;
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 1, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 2, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 3, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-2 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 1, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 2, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 3, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-3 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 1, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 2, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 3, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = UnityEngine.Object.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-4 + 0), 0), Quaternion.Euler(0, 0, -180)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+
+
+        foreach (Transform child in GameObject.Find("Plane").transform)
+        {
+
+            BoxCollider _bc = (BoxCollider)child.gameObject.AddComponent(typeof(BoxCollider));
+            // _bc.center = new Vector3(0, 50, 0);
+            _bc.size = new Vector3(100, 100, 100);
+
+        }
     }
 
     [MenuItem("MetroidVR/Maya Export Test")]

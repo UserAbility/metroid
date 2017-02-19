@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +25,10 @@ public class PrefabReplacement : EditorWindow
     Editor prefabReplacementPreview = null;
     GameObject targetObject = null;
     GameObject replacementObject = null;
+
+
+    private List<GameObject> toDelete = new List<GameObject>();
+
 
     void OnInspectorUpdate()
     {
@@ -118,71 +123,93 @@ public class PrefabReplacement : EditorWindow
         GUILayout.EndVertical();
 
         GUILayout.EndHorizontal();
+
+        // Find and replace the prefabs selected 
         if (GUILayout.Button("Proceed with replacement?") && targetPrefabName != null && replacementPrefabName != null)
         {
-            //targetPrefabNameTB = GUI.TextField(new Rect(10, 100, 500, 200), targetPrefabName, 25);
-           // replacementPrefabNameTB = GUI.TextField(new Rect(10, 130, 500, 200), replacementPrefabName, 25);
-
-
-
             foreach (Transform child in GameObject.Find("Plane").transform)
             {
+                //Debug.Log("Count of plane child objects = " + GameObject.Find("Plane").transform.childCount);
+
+                //Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
+
+                if (targetObject.name.ToUpper().Replace("(CLONE)", "") == child.name.ToUpper().Replace("(CLONE)", ""))
+                {
+                    GameObject newObject;
+                    newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
+
+                    if (child.transform.parent.name == GameObject.Find("Plane").transform.name)
+                    {
+                        newObject.transform.parent = GameObject.Find("Plane").transform;
+                    }
+                    else
+                    {
+                        newObject.transform.parent = child.transform.parent;
+                    }
+
+                    newObject.transform.localPosition = child.transform.localPosition;
+                    newObject.transform.localRotation = child.transform.localRotation;
+                    newObject.transform.localScale = child.transform.localScale;
+
+                    BoxCollider _bc = (BoxCollider)newObject.gameObject.AddComponent(typeof(BoxCollider));
+                    // _bc.center = new Vector3(0, 50, 0);
+                    _bc.size = new Vector3(100, 100, 100);
+
+
+                    //Debug.Log(string.Format("[ReplaceGameObjects] {0} in {1}", child.transform.localPosition, newObject.transform.localPosition));
+                    toDelete.Add(child.gameObject);
+
+
+
+                }
+
                 foreach (Transform subChild in child.transform)
                 {
-                    Debug.Log(subChild.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
-                    try
+                    //Debug.Log("Count of plane child objects = " + GameObject.Find("Plane").transform.childCount);
+
+                    //Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
+
+                    if (targetObject.name.ToUpper().Replace("(CLONE)", "") == subChild.name.ToUpper().Replace("(CLONE)", ""))
                     {
-                        if (targetObject.name.ToUpper().Replace("(CLONE)", "") == subChild.name.ToUpper().Replace("(CLONE)", ""))
+                        GameObject newObject;
+                        newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
+
+                        if (subChild.transform.parent.name == GameObject.Find("Plane").transform.name)
                         {
-
-
-                            GameObject newObject;
-                            newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
-                            newObject.transform.position = subChild.transform.position;
-                            newObject.transform.rotation = subChild.transform.rotation;
-                            newObject.transform.parent = subChild.transform.parent;
-                            DestroyImmediate(subChild.gameObject, true);
-
+                            newObject.transform.parent = GameObject.Find("Plane").transform;
                         }
+                        else
+                        {
+                            newObject.transform.parent = subChild.transform.parent;
+                        }
+
+                        newObject.transform.localPosition = subChild.transform.localPosition;
+                        newObject.transform.localRotation = subChild.transform.localRotation;
+                        newObject.transform.localScale = subChild.transform.localScale;
+
+                        BoxCollider _bc = (BoxCollider)newObject.gameObject.AddComponent(typeof(BoxCollider));
+                        // _bc.center = new Vector3(0, 50, 0);
+                        _bc.size = new Vector3(100, 100, 100);
+
+
+                        //Debug.Log(string.Format("[ReplaceGameObjects] {0} in {1}", child.transform.localPosition, newObject.transform.localPosition));
+                        toDelete.Add(subChild.gameObject);
+
+
+
                     }
-                    catch { }
                 }
             }
 
+            
 
 
-            targetPrefabName = null;
-            replacementPrefabName = null;
-            DestroyImmediate(targetObject.gameObject, true);
-            DestroyImmediate(replacementObject.gameObject, true);
-
+            //Delete the original prefabs
+            foreach (var del in toDelete)
+            {
+                DestroyImmediate(del);
+            }
         }
-
-        
-
-
-        //string commandName = Event.current.commandName;
-
-        //Debug.Log(commandName);
-
-        //if (commandName == "ObjectSelectorUpdated")
-        //{
-        //    targetPreFab = EditorGUIUtility.GetObjectPickerObject();
-
-
-
-        //}
-        //else if (commandName == "ObjectSelectorClosed")
-        //{
-        //    replacementPreFab = EditorGUIUtility.GetObjectPickerObject();
-        //}
-
-
-
-        //Repaint();
-
-
     }
-
-
 }
+
