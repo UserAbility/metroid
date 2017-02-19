@@ -1228,7 +1228,7 @@ public class CreatePrefabEditor
         // Verticle Shaft 3 
         buildSingleRoom("BRINSTAR", "08", 12 * 16, -2 * 15);
 
-        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -3 * 15);
 
         // Verticle Shaft top door branch horizontal
         buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
@@ -1335,7 +1335,8 @@ public class CreatePrefabEditor
         buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15);
         buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
 
-
+        
+        GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
 
     }
 
@@ -1591,7 +1592,7 @@ public class CreatePrefabEditor
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
 
-        GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
+       // GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
 
         //// The rest of Brinstar
