@@ -6,10 +6,20 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: base
+    100004: brush
     400000: //RootNode
+    400002: base
+    400004: brush
     2300000: //RootNode
+    2300002: base
+    2300004: brush
     3300000: //RootNode
+    3300002: base
+    3300004: brush
     4300000: brush_purple_cube2
+    4300002: brush
+    4300004: base
     9500000: //RootNode
   materials:
     importMaterials: 1
