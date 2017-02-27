@@ -127,25 +127,29 @@ public class PrefabReplacement : EditorWindow
         // Find and replace the prefabs selected 
         if (GUILayout.Button("Proceed with replacement?") && targetPrefabName != null && replacementPrefabName != null)
         {
-            foreach (Transform child in GameObject.Find("Plane").transform)
-            {
-                //Debug.Log("Count of plane child objects = " + GameObject.Find("Plane").transform.childCount);
+            object[] objects = GameObject.FindObjectsOfType(typeof(GameObject));
 
-                //Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
+            foreach (GameObject child in objects)
+            {
+                //GameObject g = (GameObject)child;
+
+                Debug.Log("Count of plane child objects = " + objects.Length);
+
+                Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
 
                 if (targetObject.name.ToUpper().Replace("(CLONE)", "") == child.name.ToUpper().Replace("(CLONE)", ""))
                 {
                     GameObject newObject;
                     newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
-
-                    if (child.transform.parent.name == GameObject.Find("Plane").transform.name)
-                    {
-                        newObject.transform.parent = GameObject.Find("Plane").transform;
-                    }
-                    else
-                    {
+                    
+                    //if (child.transform.parent.name == GameObject.Find("Plane").transform.name)
+                    //{
+                    //    newObject.transform.parent = GameObject.Find("Plane").transform;
+                    //}
+                    //else
+                    //{
                         newObject.transform.parent = child.transform.parent;
-                    }
+                    //}
 
                     newObject.transform.localPosition = child.transform.localPosition;
                     newObject.transform.localRotation = child.transform.localRotation;
