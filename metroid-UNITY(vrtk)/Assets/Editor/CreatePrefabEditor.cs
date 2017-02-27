@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Diagnostics;
 
 public class CreatePrefabEditor
 {
@@ -33,6 +34,8 @@ public class CreatePrefabEditor
     public static List<tileMapperList> tileMap = new List<tileMapperList>();
     public static List<roomDataList> roomDataList = new List<roomDataList>();
 
+    // Setup stop watch to troubleshoot slow issues
+    public static Stopwatch sw = Stopwatch.StartNew();
 
 
     //public const string br_c_platform_aqua = "";
@@ -155,7 +158,7 @@ public class CreatePrefabEditor
             // Reset the string builder object to clear out the previous structure
             structure.Length = 0;
         }
-        Debug.Log("All structures read!");
+        UnityEngine.Debug.Log("All structures read!");
     }
 
 
@@ -188,7 +191,7 @@ public class CreatePrefabEditor
                 paletteRead = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
                 //Debug.Log("XY positionRead = " + nesYXcoords + " structure # = " + structureRead + " paletteRead =" + paletteRead + " offset was " + offset.ToString("X"));
-                Debug.Log("Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt");
+               // UnityEngine.Debug.Log("Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt");
 
                 structurePreFabBuilder(
                     "Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt",
@@ -216,10 +219,10 @@ public class CreatePrefabEditor
                 // YX screen placement for item
                 string thing3 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
-                Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
+               // UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
             }
         }
-        Debug.Log("All room data read!");
+       // UnityEngine.Debug.Log("All room data read!");
     }
 
     public static void structurePreFabBuilder(string fileName, int nesX, int nesY, string areaName, string structureNumber, string roomNumber)
@@ -292,13 +295,13 @@ public class CreatePrefabEditor
                     if (byteCount < structure.Count)
                     {
                         // Use this to see where the last structure failed to load
-                        Debug.Log("StructureCount  " + structure.Count);
-                        Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
+                        //UnityEngine.Debug.Log("StructureCount  " + structure.Count);
+                        //UnityEngine.Debug.Log("StructureTileByte  " + structure[byteCount].tileByte + " FileName > " + fileName);
 
                         prefabName = tileMap.Find(map => map.tileByte.Contains(structure[byteCount].tileByte)).preFabName;
                         byteCount++;
 
-                        Debug.Log(prefabName.Replace("_", "-") + "," + structure.Count + "," + byteCount);
+                        //UnityEngine.Debug.Log(prefabName.Replace("_", "-") + "," + structure.Count + "," + byteCount);
 
                         switch (prefabName)
                         {
@@ -320,7 +323,7 @@ public class CreatePrefabEditor
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
-                                    Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
+                                  //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
                                     childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
                                     foreach (Transform child in childTileObject.transform)
                                     {
@@ -1113,7 +1116,7 @@ public class CreatePrefabEditor
 
     private static void buildSingleRoom(string areaName, string roomNumber, int xScenePositionStart, int yScenePositionStart)
     {
-        Debug.Log(areaName + " , " + roomNumber + " , " + xScenePositionStart.ToString() + " , " + yScenePositionStart.ToString());
+        //UnityEngine.Debug.Log(areaName + " , " + roomNumber + " , " + xScenePositionStart.ToString() + " , " + yScenePositionStart.ToString());
 
         var currentRoom = roomDataList.Find(room => room.areaName.Contains(areaName) && room.nesRoomNum.Contains(roomNumber));
 
@@ -1182,17 +1185,22 @@ public class CreatePrefabEditor
         // Make sure the plane created is set to 0,0,0 coords
         sceneParent.transform.position += new Vector3(0, 0, 0);
 
-
+        sw.Start();
         // Load the static list of Prefab<->Structure mapping data
         loadRuntimeVariables();
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished Loading Runtime variables");
+        sw.Stop();
 
+        sw.Start();
         // Build the room lists
         buildRoomLists();
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished building room lists");
+        sw.Stop();
 
         // Generate the map based on the original data structure
         //mapMaker(@"C:\\temp\test.data");
 
-
+        sw.Start();
         buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15);
         buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15);
         buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15);
@@ -1383,6 +1391,9 @@ public class CreatePrefabEditor
         
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
 
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished generating rooms");
+        sw.Stop();
+
     }
 
     [MenuItem("MetroidVR/Render Brinstar First Area")]
@@ -1396,15 +1407,25 @@ public class CreatePrefabEditor
         sceneParent.transform.position += new Vector3(0, 0, 0);
 
 
+        sw.Start();
+
         // Load the static list of Prefab<->Structure mapping data
         loadRuntimeVariables();
 
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished Loading Runtime variables");
+        sw.Stop();
+
+        sw.Start();
         // Build the room lists
         buildRoomLists();
+
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished building room lists");
+        sw.Stop();
 
         // Generate the map based on the original data structure
         //mapMaker(@"C:\\temp\test.data");
 
+        sw.Start();
 
         buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15);
         buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15);
@@ -1421,6 +1442,12 @@ public class CreatePrefabEditor
         buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15);
         buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15);
 
+
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished building rooms");
+        sw.Stop();
+
+
+        //Console.WriteLine(sw.ElapsedMilliseconds);
         //// Verticle shaft 1 bottom secction
         //buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15);
 
@@ -1637,7 +1664,7 @@ public class CreatePrefabEditor
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "14", 0x634D, 0x634C, 48, 0, 0x4011, 0x8000);
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
 
-       // GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
+        // GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
 
         //// The rest of Brinstar
