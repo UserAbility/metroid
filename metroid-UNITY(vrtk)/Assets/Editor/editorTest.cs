@@ -42,7 +42,7 @@ public class PrefabReplacement : EditorWindow
 
     public void OnPreviewGUI(Rect r, GUIStyle background)
     {
-        Debug.Log("Test");
+        //Debug.Log("Test");
     }
 
     void OnGUI()
@@ -63,10 +63,10 @@ public class PrefabReplacement : EditorWindow
         if (Event.current.commandName == "ObjectSelectorUpdated" && EditorGUIUtility.GetObjectPickerControlID() == targetPreFabWindow)
         {
             targetPrefabName = EditorGUIUtility.GetObjectPickerObject().name;
-            Debug.Log(targetPreFabWindow);
+            //Debug.Log(targetPreFabWindow);
             targetObject = (GameObject)EditorGUILayout.ObjectField(Resources.Load(targetPrefabName), typeof(GameObject), true);
             targetPreFabWindow = -1;
-            //Repaint();
+            Repaint();
         }
 
         if (targetObject != null)
@@ -100,10 +100,10 @@ public class PrefabReplacement : EditorWindow
         {
             replacementPrefabName = EditorGUIUtility.GetObjectPickerObject().name;
             //Debug.Log(replacementPreFab.name);
-            Debug.Log(replacementPrefabWindow);
+           // Debug.Log(replacementPrefabWindow);
             replacementObject = (GameObject)EditorGUILayout.ObjectField(Resources.Load(replacementPrefabName), typeof(GameObject), true);
             replacementPrefabWindow = -1;
-            // Repaint();
+            Repaint();
         }
 
         if (replacementObject != null)
@@ -133,9 +133,9 @@ public class PrefabReplacement : EditorWindow
             {
                 //GameObject g = (GameObject)child;
 
-                Debug.Log("Count of plane child objects = " + objects.Length);
+                //Debug.Log("Count of plane child objects = " + objects.Length);
 
-                Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
+                //Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
 
                 if (targetObject.name.ToUpper().Replace("(CLONE)", "") == child.name.ToUpper().Replace("(CLONE)", ""))
                 {
@@ -156,7 +156,7 @@ public class PrefabReplacement : EditorWindow
                     newObject.transform.localScale = child.transform.localScale;
 
                     BoxCollider _bc = (BoxCollider)newObject.gameObject.AddComponent(typeof(BoxCollider));
-                    // _bc.center = new Vector3(0, 50, 0);
+                    _bc.center = new Vector3(0, 50, 0);
                     _bc.size = new Vector3(100, 100, 100);
 
 
@@ -192,7 +192,7 @@ public class PrefabReplacement : EditorWindow
                         newObject.transform.localScale = subChild.transform.localScale;
 
                         BoxCollider _bc = (BoxCollider)newObject.gameObject.AddComponent(typeof(BoxCollider));
-                        // _bc.center = new Vector3(0, 50, 0);
+                         _bc.center = new Vector3(0, 50, 0);
                         _bc.size = new Vector3(100, 100, 100);
 
 
