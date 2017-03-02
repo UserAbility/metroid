@@ -1462,7 +1462,7 @@ public class CreatePrefabEditor
         {
             var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
             && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
-            && (x.name.Contains(scenePrefab.name.Substring(0, 11))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+            && (x.name.Contains(scenePrefab.name.Substring(0, 9))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
 
             if (foundMatch.Count > 0)
             {
@@ -1552,7 +1552,7 @@ public class CreatePrefabEditor
         {
             var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
             && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
-            && (x.name.Contains(scenePrefab.name.Substring(0, 11))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+            && (x.name.Contains("BRINSTAR_")) && toDelete.IndexOf(x.gameObject) < 0).ToList();
 
             if (foundMatch.Count > 0)
             {
