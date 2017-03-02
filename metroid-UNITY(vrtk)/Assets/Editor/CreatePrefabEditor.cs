@@ -7,6 +7,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Diagnostics;
+using System.Linq;
 
 public class CreatePrefabEditor
 {
@@ -15,6 +16,11 @@ public class CreatePrefabEditor
     public Transform floor_valid;
     public Transform floor_obstacle;
     public Transform floor_checkpoint;
+
+    // List of game objects that overlap to be deleted
+    private static List<GameObject> toDelete = new List<GameObject>();
+
+    public static List<GameObject> scenePrefabs = new List<GameObject>();
 
     // Pre-fab children variable
     public GameObject childTileObject;
@@ -191,8 +197,10 @@ public class CreatePrefabEditor
                 paletteRead = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
                 //Debug.Log("XY positionRead = " + nesYXcoords + " structure # = " + structureRead + " paletteRead =" + paletteRead + " offset was " + offset.ToString("X"));
-               // UnityEngine.Debug.Log("Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt");
-
+                // UnityEngine.Debug.Log("Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt");
+                //
+                // if (structureRead == "0B" || structureRead == "1F")
+                // {
                 structurePreFabBuilder(
                     "Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt",
                     int.Parse(nesYXcoords.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) + xMapOffset,
@@ -201,6 +209,7 @@ public class CreatePrefabEditor
                     structureRead,
                     roomNumber
                     );
+                //  }
             }
         }
 
@@ -219,10 +228,10 @@ public class CreatePrefabEditor
                 // YX screen placement for item
                 string thing3 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
-               // UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
+                // UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
             }
         }
-       // UnityEngine.Debug.Log("All room data read!");
+        // UnityEngine.Debug.Log("All room data read!");
     }
 
     public static void structurePreFabBuilder(string fileName, int nesX, int nesY, string areaName, string structureNumber, string roomNumber)
@@ -246,6 +255,8 @@ public class CreatePrefabEditor
 
             // Create default parent
             var currentStructure = new GameObject(structName);
+
+            currentStructure.AddComponent<MeshRenderer>();
 
             // Generate our structure at specific X,Y,Z coords to match NES placement
             currentStructure.transform.position += new Vector3(nesX, nesY, 0);
@@ -323,11 +334,16 @@ public class CreatePrefabEditor
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
-                                  //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
+                                    //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
                                     childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
+                                    childTileObject.gameObject.name = (structName + "_" + prefabName + "_child_" + byteCount).ToString();
+                                    //   childTileObject.AddComponent<MeshRenderer>();
+
+
+
                                     foreach (Transform child in childTileObject.transform)
                                     {
-                                        
+
                                         //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
                                         //child.transform.position = new Vector3(childTileObject.transform.position.x, childTileObject.transform.position.y, -50f);
                                         child.transform.localScale = new Vector3(1f, 1f, 1f);
@@ -348,8 +364,60 @@ public class CreatePrefabEditor
                                     BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
                                     _bc.center = new Vector3(0, 50, 0);
                                     _bc.size = new Vector3(100, 100, 100);
+
                                 }
+
+                                // var bounds1 = childTileObject.GetComponent<Renderer>().bounds;
+
+
+
+                                scenePrefabs.Add(childTileObject.gameObject);
+
+
+                                //foreach (GameObject existingObject in objects)
+                                //{
+
+                                //    if (existingObject.name.Contains("BRINSTAR"))
+                                //    {
+
+                                //        foreach (GameObject childExistingObject in objects)
+                                //        {
+                                //            //  UnityEngine.Debug.Log(existingObject.name);
+
+                                //            //if (existingObject.name.Contains(areaName + "_" + roomNumber) && existingObject.name != childTileObject.name)
+                                //            //{
+                                //                // UnityEngine.Debug.Log("INSIDE");
+
+
+                                //                //var bounds2 = existingObject.GetComponent<Renderer>().bounds;
+                                //                //if(bounds1.Intersects(bounds2) )
+                                //                if (childExistingObject.name.Contains(areaName + "_" + roomNumber) && (childTileObject.transform.position.x == childExistingObject.transform.position.x && childTileObject.transform.position.y == childExistingObject.transform.position.y) && childTileObject.name != childExistingObject.name)
+                                //                {
+
+
+                                //                if (childExistingObject.name.Contains("child"))
+                                //                {
+                                //                  UnityEngine.Debug.Log(childTileObject.name + " Position X-> " + childTileObject.transform.position.x + " Position Y-> " + childTileObject.transform.position.y + " <-- child | existing --> " + childExistingObject.name + " Position X-> " + childExistingObject.transform.position.x + " Position Y -> " + childExistingObject.transform.position.y);
+                                //                    //UnityEngine.Debug.Log("Object" + childTileObject.name + " INTERSECTS Structure offset X/Y = " + x + " " + y);
+
+
+                                //                        toDelete.Add(childExistingObject.gameObject);
+                                //                     }
+
+                                //                }
+                                //                else
+                                //                {
+                                //                    //UnityEngine.Debug.Log("Object" + childTileObject.name + " DONT INTERSECT! Structure offset X/Y = " + x + " " + y);
+                                //                }
+
+                                //            //
+                                //        }
+                                //    }
+                                //}
+
                                 break;
+
+
 
 
                         }
@@ -1128,8 +1196,8 @@ public class CreatePrefabEditor
     [MenuItem("MetroidVR/Prefap Swap Troubleshooter")]
     private static void testPrefabSwapper()
     {
-      
-       
+
+
 
         GameObject childTileObject = null;
         childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueA"), new Vector3(0 + 1, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
@@ -1162,7 +1230,7 @@ public class CreatePrefabEditor
         {
 
             BoxCollider _bc = (BoxCollider)child.gameObject.AddComponent(typeof(BoxCollider));
-             _bc.center = new Vector3(0, 50, 0);
+            _bc.center = new Vector3(0, 50, 0);
             _bc.size = new Vector3(100, 100, 100);
 
         }
@@ -1388,8 +1456,38 @@ public class CreatePrefabEditor
         buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15);
         buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
 
-        
+
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
+        foreach (GameObject scenePrefab in scenePrefabs)
+        {
+            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+            && (x.name.Contains(scenePrefab.name.Substring(0, 11))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+
+            if (foundMatch.Count > 0)
+            {
+                foreach (var match in foundMatch)
+                {
+                    if (match.name.Contains("child"))
+                    {
+                        UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                        toDelete.Add(scenePrefab.gameObject);
+
+                        foreach (Transform child in scenePrefab.transform)
+                        {
+                            toDelete.Add(child.gameObject);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        //Delete the original prefabs
+        foreach (var del in toDelete)
+        {
+            GameObject.DestroyImmediate(del);
+        }
 
         UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished generating rooms");
         sw.Stop();
@@ -1441,10 +1539,51 @@ public class CreatePrefabEditor
         buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15);
         buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15);
         buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15);
+        
+        // Room with all the pipes that had overlaps
+        //buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
+        //buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
+        //buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15);
+        //buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15);
+        //buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15);
+        //buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15);
+
+        foreach (GameObject scenePrefab in scenePrefabs)
+        {
+            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+            && (x.name.Contains(scenePrefab.name.Substring(0, 11))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+
+            if (foundMatch.Count > 0)
+            {
+                foreach (var match in foundMatch)
+                {
+                    if (match.name.Contains("child"))
+                    {
+                        UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                        toDelete.Add(scenePrefab.gameObject);
+
+                        foreach (Transform child in scenePrefab.transform)
+                        {
+                            toDelete.Add(child.gameObject);
+                        }
+                    }
+                }
+
+            }
+        }
 
 
+        //Delete the original prefabs
+        foreach (var del in toDelete)
+        {
+            GameObject.DestroyImmediate(del);
+        }
         UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished building rooms");
         sw.Stop();
+
+
+
 
 
         //Console.WriteLine(sw.ElapsedMilliseconds);
@@ -1865,7 +2004,7 @@ public class CreatePrefabEditor
         //buildRoomDataRef("Assets/Resources/test.data", "RIDLEYS", "13", 0x161E0, 0x161DF, 640, 0, 0x14011, 0x8000);
         //buildRoomDataRef("Assets/Resources/test.data", "RIDLEYS", "14", 0x161E2, 0x161E1, 656, 0, 0x14011, 0x8000);
 
-        GameObject.Find("Plane").transform.Rotate(180, 0, 0);
+        //GameObject.Find("Plane").transform.Rotate(180, 0, 0);
 
     }
 
