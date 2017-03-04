@@ -336,7 +336,7 @@ public class CreatePrefabEditor
                                 {
                                     //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
                                     childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
-                                    childTileObject.gameObject.name = (structName + "_" + prefabName + "_child_" + byteCount).ToString();
+                                    childTileObject.gameObject.name = (structName + "_|" + prefabName + "|_child_" + byteCount).ToString();
                                     //   childTileObject.AddComponent<MeshRenderer>();
 
 
@@ -1470,7 +1470,7 @@ public class CreatePrefabEditor
                 {
                     if (match.name.Contains("child"))
                     {
-                        UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                       // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
                         toDelete.Add(scenePrefab.gameObject);
 
                         foreach (Transform child in scenePrefab.transform)

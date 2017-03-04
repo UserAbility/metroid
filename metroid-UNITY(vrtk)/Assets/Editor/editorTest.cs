@@ -134,39 +134,42 @@ public class PrefabReplacement : EditorWindow
                 //GameObject g = (GameObject)child;
 
                 //Debug.Log("Count of plane child objects = " + objects.Length);
+                
+                
+                if(child.name.Contains("|"))
+                    {
+                    if (targetObject.name.ToUpper().Replace("(CLONE)", "") == child.name.ToUpper().Replace("(CLONE)", "").Split('|')[1].Split('|')[0])
+                    {
+                        Debug.Log(child.name.ToUpper().Replace("(CLONE)", "").Split('|')[1].Split('|')[0] + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
 
-                //Debug.Log(child.name.ToUpper().Replace("(CLONE)", "") + " current object -> " + targetObject.name.ToUpper().Replace("(CLONE)", ""));
+                        GameObject newObject;
+                        newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
 
-                if (targetObject.name.ToUpper().Replace("(CLONE)", "") == child.name.ToUpper().Replace("(CLONE)", ""))
-                {
-                    GameObject newObject;
-                    newObject = UnityEngine.Object.Instantiate(Resources.Load(replacementObject.name)) as GameObject;
-                    
-                    //if (child.transform.parent.name == GameObject.Find("Plane").transform.name)
-                    //{
-                    //    newObject.transform.parent = GameObject.Find("Plane").transform;
-                    //}
-                    //else
-                    //{
+                        //if (child.transform.parent.name == GameObject.Find("Plane").transform.name)
+                        //{
+                        //    newObject.transform.parent = GameObject.Find("Plane").transform;
+                        //}
+                        //else
+                        //{
                         newObject.transform.parent = child.transform.parent;
-                    //}
+                        //}
 
-                    newObject.transform.localPosition = child.transform.localPosition;
-                    newObject.transform.localRotation = child.transform.localRotation;
-                    newObject.transform.localScale = child.transform.localScale;
+                        newObject.transform.localPosition = child.transform.localPosition;
+                        newObject.transform.localRotation = child.transform.localRotation;
+                        newObject.transform.localScale = child.transform.localScale;
 
-                    BoxCollider _bc = (BoxCollider)newObject.gameObject.AddComponent(typeof(BoxCollider));
-                    _bc.center = new Vector3(0, 50, 0);
-                    _bc.size = new Vector3(100, 100, 100);
-
-
-                    //Debug.Log(string.Format("[ReplaceGameObjects] {0} in {1}", child.transform.localPosition, newObject.transform.localPosition));
-                    toDelete.Add(child.gameObject);
+                        BoxCollider _bc = (BoxCollider)newObject.gameObject.AddComponent(typeof(BoxCollider));
+                        _bc.center = new Vector3(0, 50, 0);
+                        _bc.size = new Vector3(100, 100, 100);
 
 
+                        //Debug.Log(string.Format("[ReplaceGameObjects] {0} in {1}", child.transform.localPosition, newObject.transform.localPosition));
+                        toDelete.Add(child.gameObject);
 
+
+
+                    }
                 }
-
                 foreach (Transform subChild in child.transform)
                 {
                     //Debug.Log("Count of plane child objects = " + GameObject.Find("Plane").transform.childCount);
