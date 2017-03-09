@@ -8,9 +8,12 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Diagnostics;
 using System.Linq;
+using System.Globalization;
 
 public class CreatePrefabEditor
 {
+    private static readonly Texture2D backgroundTexture = Texture2D.blackTexture;
+    private static readonly GUIStyle textureStyle = new GUIStyle { normal = new GUIStyleState { background = backgroundTexture } };
 
     public Transform player;
     public Transform floor_valid;
@@ -35,6 +38,7 @@ public class CreatePrefabEditor
 
     public static Transform lastChildPosition;
     public static float width;
+    public static bool drawEnemies = false;
 
     // Build a list to hold the multidimensional data mapped between NES tile byte assigments and Unity prefabs
     public static List<tileMapperList> tileMap = new List<tileMapperList>();
@@ -168,7 +172,7 @@ public class CreatePrefabEditor
     }
 
 
-    public static void roomBuilder(string fileName, int offset, string areaName, int xMapOffset, int yMapOffset, string roomNumber)
+    public static void roomBuilder(string fileName, int offset, string areaName, int xMapOffset, int yMapOffset, string roomNumber, String targetPalette)
     {
         // Setup the binary stream reader to take read in the hex values
         Stream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -207,34 +211,99 @@ public class CreatePrefabEditor
                     int.Parse(nesYXcoords.Substring(0, 1), System.Globalization.NumberStyles.HexNumber) + yMapOffset,
                     areaName,
                     structureRead,
-                    roomNumber
+                    roomNumber, targetPalette
                     );
                 //  }
             }
         }
-
-        string thing1 = "";
-
-        // Read past the structure data to get any item/enemy/door info
-        while (thing1 != "FF")
+        
+        if (nesYXcoords == "FD" && drawEnemies == true)
         {
-            // Sprite Slot/Item Type (01 = Slot 0/Enemy)
-            thing1 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
-            if (thing1 != "FF")
+            // Create default parent enemy
+            var parentEnemy = new GameObject();
+
+
+
+            // Generate our structure at specific X,Y,Z coords to match NES placement
+            parentEnemy.transform.position += new Vector3(xMapOffset, yMapOffset, 0);
+            string parentEnemyName = areaName + " room " + roomNumber + " Enemies";
+            parentEnemy.name = parentEnemyName;
+
+            //parentEnemy.transform.SetParent(GameObject.Find("Plane").transform, true);
+
+
+            string thing1 = "";
+            string thing2 = "";
+            string thing3 = "";
+
+            // Read past the structure data to get any item/enemy/door info
+            while (thing1 != "FF")
             {
-                // Difficulty/Enemy Type (05 = easiest yellow crawler)
-                string thing2 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+                // Sprite Slot/Item Type (01 = Slot 0/Enemy)
+                thing1 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
 
-                // YX screen placement for item
-                string thing3 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+                while (thing1 == "02")
+                {
+                    thing1 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+                    thing1 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+                }
 
-                // UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
+
+                if (thing1 != "FF")
+                {
+                    // Difficulty/Enemy Type (05 = easiest yellow crawler)
+                    thing2 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+
+                    // YX screen placement for item
+                    thing3 = HexStr(brFile.ReadBytes(1)).Replace("0x", "");
+
+                    //if (thing3 != "FF")
+                    //{
+                    float yOffset = -1 * (float)((yMapOffset) + System.Int32.Parse(thing3.Substring(0, 1), NumberStyles.AllowHexSpecifier));
+                    float xOffset = (float)((xMapOffset) + System.Int32.Parse(thing3.Substring(1, 1), NumberStyles.AllowHexSpecifier));
+                    //UnityEngine.Debug.Log(yOffset + " <y before x> " + xOffset);
+
+                    // Sprite slot not = 0 and item type not 0,15,7,9,13
+                    //if (System.Int32.Parse(thing1.Substring(0, 1), NumberStyles.AllowHexSpecifier) != 0
+                    //    && System.Int32.Parse(thing1.Substring(1, 1), NumberStyles.AllowHexSpecifier) != 0
+                    //    && System.Int32.Parse(thing1.Substring(1, 1), NumberStyles.AllowHexSpecifier) != 15
+                    //    && System.Int32.Parse(thing1.Substring(1, 1), NumberStyles.AllowHexSpecifier) != 7
+                    //    && System.Int32.Parse(thing1.Substring(1, 1), NumberStyles.AllowHexSpecifier) != 9
+                    //    && System.Int32.Parse(thing1.Substring(1, 1), NumberStyles.AllowHexSpecifier) != 13
+                    //    )
+                    //{
+                    //if (System.Int32.Parse(thing1.Substring(1, 1), NumberStyles.AllowHexSpecifier) == 1
+                    //    && ((System.Int32.Parse(thing2.Substring(1, 1), NumberStyles.AllowHexSpecifier) == 4) 
+                    //    || System.Int32.Parse(thing2.Substring(1, 1), NumberStyles.AllowHexSpecifier) == 5)
+                    //    && System.Int32.Parse(thing2.Substring(0, 1), NumberStyles.AllowHexSpecifier) == 0
+                    //    )
+                    //{
+
+                    //UnityEngine.Debug.Log(System.Int32.Parse(thing2.Substring(0, 1), NumberStyles.AllowHexSpecifier));
+
+                    GameObject enemyObject = NestedPrefab.Instantiate(Resources.Load("br-c-lava-orange-base")) as GameObject;
+                    enemyObject.transform.position = new Vector3(xOffset, yOffset, 0);
+                    // UnityEngine.Debug.Log(yOffset + " <y after x> " + xOffset);
+
+                    enemyObject.gameObject.name = "Enemy_Sprite_X_Type_" + thing2.Substring(1, 1);
+
+                    //  UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
+                    // UnityEngine.Debug.Log("xoffset = " + xMapOffset + " yOffset = " + yMapOffset + " Sprite Slot =" + thing1.Substring(0, 1) + " Item Type = " + thing1.Substring(1, 1) + " Difficulty =" + thing2.Substring(0, 1) + " Enemy Type = " + thing2.Substring(1, 1) + " offset Y= " + thing3.Substring(0, 1) + " offset X= " + thing3.Substring(1, 1) + " Room # = " + roomNumber + " ending offset was " + fileStream.Position.ToString("X") + " starting offset was " + offset);
+                    ///UnityEngine.Debug.Log(" Room # = " + roomNumber + " ending offset was " + fileStream.Position.ToString("X") + " starting offset was " + offset.ToString("X") + " Sprite Slot =" + thing1.Substring(0, 1) + " Item Type = " + thing1.Substring(1, 1) + " Difficulty =" + thing2.Substring(0, 1) + " Enemy Type = " + thing2.Substring(1, 1));
+                    enemyObject.transform.SetParent(parentEnemy.gameObject.transform);
+                    //}
+                    //UnityEngine.Debug.Log((float)(xMapOffset) + System.Int32.Parse(thing3.Substring(1, 1), NumberStyles.AllowHexSpecifier)); // + (float)Convert.ToInt32(thing3.Substring(1, 1)));
+
+
+                    //}
+                    // }
+                }
             }
         }
         // UnityEngine.Debug.Log("All room data read!");
     }
 
-    public static void structurePreFabBuilder(string fileName, int nesX, int nesY, string areaName, string structureNumber, string roomNumber)
+    public static void structurePreFabBuilder(string fileName, int nesX, int nesY, string areaName, string structureNumber, string roomNumber, string palette)
     {
         int scaleX = 2;
         int scaleY = 2;
@@ -257,6 +326,7 @@ public class CreatePrefabEditor
             var currentStructure = new GameObject(structName);
 
             currentStructure.AddComponent<MeshRenderer>();
+
 
             // Generate our structure at specific X,Y,Z coords to match NES placement
             currentStructure.transform.position += new Vector3(nesX, nesY, 0);
@@ -334,12 +404,40 @@ public class CreatePrefabEditor
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
+
+
+
+
+                                    //if (!prefabName.ToUpper().Contains("VENT")
+
+                                    //    )
+                                    //{
+                                    //    if (prefabName.ToUpper().Contains("TUBE"))
+                                    //    {
+                                    //        UnityEngine.Debug.Log(roomNumber + " <-- Room Number | Palette number -->" + palette + " prefabName = " + prefabName);
+                                    //        if (!prefabName.ToLower().Contains("br-m-tube-aqua-hori"))
+                                    //        {
+                                    //            prefabName = prefabName.ToUpper().Replace("AQUA", "BLUE");
+                                    //        }
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        prefabName = prefabName.ToUpper().Replace("AQUA", "ORANGE");
+                                    //    }
+                                    //    //  prefabName = prefabName.ToUpper().Replace("BLUE", "ORANGE");
+
+                                    //}
+
                                     //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
                                     childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
                                     childTileObject.gameObject.name = (structName + "_|" + prefabName + "|_child_" + byteCount).ToString();
-                                    //   childTileObject.AddComponent<MeshRenderer>();
 
 
+                                    //childTileObject.AddComponent<MeshRenderer>();
+
+                                    //childTileObject.GetComponent<Renderer>().material.color = new Color(80, 30, 255);
+
+                                    paletteChanger(childTileObject, palette);
 
                                     foreach (Transform child in childTileObject.transform)
                                     {
@@ -348,6 +446,7 @@ public class CreatePrefabEditor
                                         //child.transform.position = new Vector3(childTileObject.transform.position.x, childTileObject.transform.position.y, -50f);
                                         child.transform.localScale = new Vector3(1f, 1f, 1f);
                                         child.transform.SetParent(childTileObject.transform, false);
+
 
                                     }
 
@@ -596,7 +695,7 @@ public class CreatePrefabEditor
     }
 
     public static void buildRoomDataRef(string fileName, string areaName, string roomNumber,
-           int topPtrByte, int bottomPtrByte, int xMapOffset, int yMapOffset, int nesBankOffset, int nesBaseAddress)
+           int topPtrByte, int bottomPtrByte, int xMapOffset, int yMapOffset, int nesBankOffset, int nesBaseAddress, string targetPalette)
     {
         // Setup the binary stream reader to take read in the hex values
         Stream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -625,7 +724,7 @@ public class CreatePrefabEditor
             - nesBaseAddress)
             + nesBankOffset);
 
-        roomBuilder(fileName, roomOffset, areaName, xMapOffset, yMapOffset, roomNumber);
+        roomBuilder(fileName, roomOffset, areaName, xMapOffset, yMapOffset, roomNumber, targetPalette);
 
         brFile.Close();
     }
@@ -1182,7 +1281,7 @@ public class CreatePrefabEditor
         roomDataList.Add(new roomDataList() { nesRoomNum = "14", topByte = 0x161E1, bottomByte = 0x161E2, bankOffset = 0x14011, baseMemoryAddress = 0x8000, areaName = "RIDLEYS" });
     }
 
-    private static void buildSingleRoom(string areaName, string roomNumber, int xScenePositionStart, int yScenePositionStart)
+    private static void buildSingleRoom(string areaName, string roomNumber, int xScenePositionStart, int yScenePositionStart, string targetPalette)
     {
         //UnityEngine.Debug.Log(areaName + " , " + roomNumber + " , " + xScenePositionStart.ToString() + " , " + yScenePositionStart.ToString());
 
@@ -1190,7 +1289,307 @@ public class CreatePrefabEditor
 
 
 
-        buildRoomDataRef("Assets/Resources/test.data", areaName, roomNumber, currentRoom.bottomByte, currentRoom.topByte, xScenePositionStart, yScenePositionStart, currentRoom.bankOffset, currentRoom.baseMemoryAddress);
+        buildRoomDataRef("Assets/Resources/test.data", areaName, roomNumber, currentRoom.bottomByte, currentRoom.topByte, xScenePositionStart, yScenePositionStart, currentRoom.bankOffset, currentRoom.baseMemoryAddress, targetPalette);
+    }
+
+    private static void paletteChanger(GameObject gameObject, string color)
+    {
+
+
+        string shadeColor = "";
+        string shadowColor = "";
+        string highlightColor = "";
+        string brushColors1 = "";
+        string brushColors = "";
+        string blue = "";
+        bool skipSwap = false;
+
+        Material[] faceMaterials = new Material[5];
+
+        try
+        {
+            Material[] existingMaterials = gameObject.GetComponent<Renderer>().sharedMaterials;
+            faceMaterials[0] = existingMaterials[0];
+            faceMaterials[1] = existingMaterials[1];
+            faceMaterials[2] = existingMaterials[2];
+            faceMaterials[3] = existingMaterials[3];
+            faceMaterials[4] = existingMaterials[4];
+
+        }
+        catch { }
+
+        switch (color)
+        {
+
+            case "White":
+                if (!gameObject.name.Contains("pipe"))
+                {
+                    faceMaterials[0] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
+                    faceMaterials[1] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
+                    faceMaterials[2] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    faceMaterials[3] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    faceMaterials[4] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                }
+                break;
+
+            case "Orange":
+
+                if (!gameObject.name.Contains("pipe")
+                           && !gameObject.name.Contains("br-m-tubeHori-white")
+                           && !gameObject.name.Contains("br-m-tubeHori-hole-white")
+                           && !gameObject.name.Contains("seal")
+                           && !gameObject.name.Contains("lava")
+                           )
+                {
+                    faceMaterials[0] = Resources.Load(@"Materials\solid_Orange4", typeof(Material)) as Material;
+                    faceMaterials[1] = Resources.Load(@"Materials\solid_Orange", typeof(Material)) as Material;
+                    faceMaterials[2] = Resources.Load(@"Materials\solid_Orange2", typeof(Material)) as Material;
+                    faceMaterials[3] = Resources.Load(@"Materials\lambert1", typeof(Material)) as Material;
+                    faceMaterials[4] = Resources.Load(@"Materials\solid_Orange", typeof(Material)) as Material;
+
+                    if (gameObject.name.Contains("foam"))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\Yellow", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_Orange2", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_black", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\Yellow", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\solid_Orange4", typeof(Material)) as Material;
+                    }
+
+                    if (gameObject.name.Contains("rock"))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_Black", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_Orange4", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\Yellow", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\Yellow", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\Yellow", typeof(Material)) as Material;
+                    }
+
+                    if ((gameObject.name.Contains("vent")) && !gameObject.name.Contains("07_07"))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    }
+
+                    if ((gameObject.name.Contains("pill") || (gameObject.name.Contains("pillar"))) && !gameObject.name.Contains("07_07"))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    }
+
+
+                    shadeColor = @"Materials\solid_Orange4";
+                    shadowColor = @"Materials\solid_Orange";
+                    highlightColor = @"Materials\solid_Orange2";
+                    brushColors1 = @"Materials\solid_Orange4";
+                    brushColors = @"Materials\solid_Orange";
+                }
+                else
+                {
+                    skipSwap = true;
+                }
+                break;
+
+            case "Blue":
+
+                if (!gameObject.name.Contains("seal"))
+                {
+
+                    shadeColor = @"Materials\imp_solid_blue";
+                    highlightColor = @"Materials\imp_solid_blue8";
+                    shadowColor = @"Materials\imp_solid_blue";
+
+                    brushColors1 = @"Materials\imp_solid_blue8";
+                    brushColors = @"Materials\imp_solid_blue";
+                    blue = @"Materials\imp_solid_blue";
+
+                    if (!gameObject.name.Contains("pot"))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\imp_solid_blue", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\imp_black5", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_black", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\imp_solid_blue8", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\imp_solid_blue", typeof(Material)) as Material;
+
+                    }
+
+                    if (gameObject.name.Contains("bush"))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_Green4", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_Green1", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_Green3", typeof(Material)) as Material;
+                        shadowColor = @"Materials\solid_Green4";
+                    }
+
+                    if ((gameObject.name.Contains("pill") || (gameObject.name.Contains("pillar"))))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    }
+
+                    if ((gameObject.name.Contains("vent")))
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[3] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                        faceMaterials[4] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    }
+                }
+                break;
+
+            case "Green":
+
+                if (!gameObject.name.Contains("pot")
+                            && !gameObject.name.Contains("pipe")
+                            && !gameObject.name.Contains("br-m-tubeHori-white")
+                            && !gameObject.name.Contains("br-m-tubeHori-hole-white")
+                            && !gameObject.name.Contains("seal")
+                            && !gameObject.name.Contains("lava")
+                            )
+                {
+                    if (gameObject.name.Contains("foam") || gameObject.name.Contains("br-m-rock"))
+                    {
+                        if (gameObject.name.Contains("25_06"))
+                        {
+                            faceMaterials[0] = Resources.Load(@"Materials\solid_orange2", typeof(Material)) as Material;
+                            faceMaterials[1] = Resources.Load(@"Materials\solid_orange4", typeof(Material)) as Material;
+                            faceMaterials[2] = Resources.Load(@"Materials\solid_black", typeof(Material)) as Material;
+                            faceMaterials[3] = Resources.Load(@"Materials\lambert1", typeof(Material)) as Material;
+                            faceMaterials[4] = Resources.Load(@"Materials\solid_Orange", typeof(Material)) as Material;
+                        }
+                        else
+                        {
+                            faceMaterials[0] = Resources.Load(@"Materials\solid_orange2", typeof(Material)) as Material;
+                            faceMaterials[1] = Resources.Load(@"Materials\solid_orange4", typeof(Material)) as Material;
+                            faceMaterials[2] = Resources.Load(@"Materials\solid_black", typeof(Material)) as Material;
+                            faceMaterials[3] = Resources.Load(@"Materials\lambert1", typeof(Material)) as Material;
+                            faceMaterials[4] = Resources.Load(@"Materials\solid_green4", typeof(Material)) as Material;
+                        }
+
+                    }
+                    else
+                    {
+                        faceMaterials[0] = Resources.Load(@"Materials\solid_Green4", typeof(Material)) as Material;
+                        faceMaterials[1] = Resources.Load(@"Materials\solid_Green1", typeof(Material)) as Material;
+                        faceMaterials[2] = Resources.Load(@"Materials\solid_Green3", typeof(Material)) as Material;
+                    }
+                    shadeColor = @"Materials\solid_Green4";
+                    highlightColor = @"Materials\Yellow";
+                    shadowColor = @"Materials\solid_Green4";
+
+                    brushColors1 = @"Materials\solid_Green4";
+                    brushColors = @"Materials\solid_Green1";
+                    blue = @"Materials\solid_Green1";
+
+                    //if(gameObject.name.Contains("br-m-tubeHori-white") || gameObject.name.Contains("br-m-tubeHori-hole-white"))
+                    //{
+                    //    faceMaterials[0] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
+                    //    faceMaterials[1] = Resources.Load(@"Materials\lambert1", typeof(Material)) as Material;
+                    //    faceMaterials[2] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
+                    //    faceMaterials[2] = Resources.Load(@"Materials\solid_white", typeof(Material)) as Material;
+                    //}
+
+                    if (gameObject.name.Contains("br-m-brush-aqua"))
+                    {
+                        brushColors = @"Materials\solid_orange4";
+                        brushColors1 = @"Materials\solid_orange";
+                    }
+                }
+                else
+                {
+                    skipSwap = true;
+                }
+                break;
+
+            default:
+                break;
+
+        }
+
+
+        try
+        {
+            if (gameObject.GetComponent<Renderer>().enabled == true)
+            {
+                //UnityEngine.Debug.Log(gameObject.name + " already has a renderer");
+            }
+        }
+        catch
+        {
+            gameObject.AddComponent<MeshRenderer>();
+            // UnityEngine.Debug.Log(gameObject.name + " had no renderer. One was added");
+        }
+
+        if (color != "Aqua" && skipSwap == false)
+        {
+            if (gameObject.transform.childCount > 0)
+            {
+                foreach (Transform child in gameObject.transform)
+                {
+
+                    //UnityEngine.Debug.Log(gameObject.name + " being checked for shade and highlight");
+                    if (child.name == "shade")
+                    {
+
+                        //  UnityEngine.Debug.Log(gameObject.name + " had a shade component so changing the material");
+                        child.GetComponent<Renderer>().material = Resources.Load(shadeColor, typeof(Material)) as Material;
+                    }
+
+                    if (child.name == "highlight")
+                    {
+                        // UnityEngine.Debug.Log(gameObject.name + " had a highlight component so changing the material");
+                        child.GetComponent<Renderer>().material = Resources.Load(highlightColor, typeof(Material)) as Material;
+                    }
+
+                    if (child.name == "pills")
+                    {
+                        child.GetComponent<Renderer>().sharedMaterials = faceMaterials;
+                        // UnityEngine.Debug.Log(gameObject.name + " had a highlight component so changing the material");
+
+                    }
+
+                    if (child.name == "highlight")
+                    {
+                        // UnityEngine.Debug.Log(gameObject.name + " had a highlight component so changing the material");
+                        child.GetComponent<Renderer>().material = Resources.Load(highlightColor, typeof(Material)) as Material;
+                    }
+
+                    if (child.name == "shadow")
+                    {
+                        // UnityEngine.Debug.Log(gameObject.name + " had a highlight component so changing the material");
+                        child.GetComponent<Renderer>().material = Resources.Load(shadowColor, typeof(Material)) as Material;
+                    }
+
+                    if (child.name == "blue")
+                    {
+                        // UnityEngine.Debug.Log(gameObject.name + " had a highlight component so changing the material");
+                        child.GetComponent<Renderer>().material = Resources.Load(shadowColor, typeof(Material)) as Material;
+                    }
+
+                    if (child.name == "brush")
+                    {
+                        Material[] orangeMaterials = new Material[2];
+
+                        orangeMaterials[0] = Resources.Load(brushColors, typeof(Material)) as Material;
+                        orangeMaterials[1] = Resources.Load(brushColors1, typeof(Material)) as Material;
+                        child.GetComponent<Renderer>().sharedMaterials = orangeMaterials;
+
+                    }
+                }
+            }
+
+            gameObject.GetComponent<Renderer>().sharedMaterials = faceMaterials;
+        }
     }
 
     [MenuItem("MetroidVR/Prefap Swap Troubleshooter")]
@@ -1198,32 +1597,61 @@ public class CreatePrefabEditor
     {
 
 
+        // Create the plane automatically
+        var sceneParent = new GameObject("Plane");
+
+        // Make sure the plane created is set to 0,0,0 coords
+        sceneParent.transform.position += new Vector3(0, 0, 0);
+
+
+
 
         GameObject childTileObject = null;
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueA"), new Vector3(0 + 1, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueB"), new Vector3(0 + 2, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaA"), new Vector3(0 + 3, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaB"), new Vector3(0 + 4, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 1, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 2, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 3, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 1, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 2, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 3, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueA"), new Vector3(0 + 1, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueB"), new Vector3(0 + 2, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaA"), new Vector3(0 + 3, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaB"), new Vector3(0 + 4, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_greenB"), new Vector3(0 + 5, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Green");
+
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-rock-aqua"), new Vector3(0 + 6, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Green");
+
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-pillar-hori-aqua"), new Vector3(0 + 7, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Aqua");
+
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-brush-aqua"), new Vector3(0 + 8, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Orange");
+
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-brush-orange"), new Vector3(0 + 9, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Orange");
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-tube-aqua"), new Vector3(0 + 1, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Aqua");
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-spiral-aqua"), new Vector3(0 + 2, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Orange");
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-spiral-orange"), new Vector3(0 + 3, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        paletteChanger(childTileObject, "Orange");
+
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 1, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 2, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 3, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 6, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 7, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 8, (-4 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
 
 
         foreach (Transform child in GameObject.Find("Plane").transform)
@@ -1234,6 +1662,13 @@ public class CreatePrefabEditor
             _bc.size = new Vector3(100, 100, 100);
 
         }
+
+        ;
+
+
+
+
+
     }
 
     [MenuItem("MetroidVR/Maya Export Test")]
@@ -1244,9 +1679,13 @@ public class CreatePrefabEditor
         quickTester();
     }
 
+
     [MenuItem("MetroidVR/Render Brinstar Complete")]
     private static void CreatePrefabComplete()
     {
+
+        // Create temp black background :)
+
         // Create the plane automatically
         var sceneParent = new GameObject("Plane");
 
@@ -1269,192 +1708,215 @@ public class CreatePrefabEditor
         //mapMaker(@"C:\\temp\test.data");
 
         sw.Start();
-        buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15, "Aqua");
+
+
 
         // 1st Cross section that goes up and down
-        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15);
+        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15, "Aqua");
 
         // Verticle shaft 1 mid secction
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15);
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15);
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15);
-        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15);
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15, "Aqua");
 
+
+
+
+
+
+
+        Console.WriteLine(sw.ElapsedMilliseconds);
         // Verticle shaft 1 bottom secction
-        buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15);
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15, "Aqua");
 
         // Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
-        buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15);
+        buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15, "Aqua");
 
-        // Past first coordidor until the second verticle cooridor
-        buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15);
+        //Past first coordidor until the second verticle cooridor
+        buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15, "Aqua");
 
         // Verticle Shaft 2 Bottom section
-        buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15);
+        buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15, "Aqua");
 
         // Verticle Shaft 2 mid section
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -1 * 15);
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -2 * 15);
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -4 * 15);
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -5 * 15);
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -1 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -2 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -3 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -4 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -5 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -6 * 15, "Aqua");
 
-        // Veritcle Shaft 2 Mid section / right exit
-        buildSingleRoom("BRINSTAR", "03", 10 * 16, -7 * 15);
+        //// Veritcle Shaft 2 Mid section / right exit
+        buildSingleRoom("BRINSTAR", "03", 10 * 16, -7 * 15, "Aqua");
 
-        // Palette switch room for Brinstar
-        buildSingleRoom("BRINSTAR", "00", 11 * 16, -7 * 15);
+        //// Palette switch room for Brinstar
+        buildSingleRoom("BRINSTAR", "00", 11 * 16, -7 * 15, "Aqua");
 
-        // Verticle Shaft 2 mid section cont
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -8 * 15);
+        //// Verticle Shaft 2 mid section cont
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -8 * 15, "Aqua");
 
-        // Veritcle Shaft 2 Mid section / Left exit
-        buildSingleRoom("BRINSTAR", "04", 10 * 16, -9 * 15);
 
-        // Mid horizontal section
-        buildSingleRoom("BRINSTAR", "28", 9 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "29", 8 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "1A", 7 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "0A", 6 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "08", 5 * 16, -9 * 15);
+        //// Veritcle Shaft 2 Mid section / Left exit
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, -9 * 15, "Aqua");
 
-        // Veritcle Shaft 2 Mid section / Above left mid exit
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -10 * 15);
-        buildSingleRoom("BRINSTAR", "06", 10 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "04", 10 * 16, -12 * 15);
+        //// Mid horizontal section
+        buildSingleRoom("BRINSTAR", "28", 9 * 16, -9 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "29", 8 * 16, -9 * 15, "Aqua");
+
+        buildSingleRoom("BRINSTAR", "1A", 7 * 16, -9 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "0A", 6 * 16, -9 * 15, "White");
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, -9 * 15, "Aqua");
+
+        //// Veritcle Shaft 2 Mid section / Above left mid exit
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -10 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 10 * 16, -11 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, -12 * 15, "Aqua");
 
         // Verticle Shaft 2 top section
-        buildSingleRoom("BRINSTAR", "08", 10 * 16, -13 * 15);
+        buildSingleRoom("BRINSTAR", "08", 10 * 16, -13 * 15, "Aqua");
 
         // Top horizontal section 
-        buildSingleRoom("BRINSTAR", "13", 9 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "14", 8 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "16", 7 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "15", 6 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "15", 5 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "27", 4 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "2B", 3 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "2C", 2 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "14", 8 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "16", 7 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "15", 6 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "15", 5 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "27", 4 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "2B", 3 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "2C", 2 * 16, -12 * 15, "Aqua");
 
 
         // Verticle Shaft 3 
-        buildSingleRoom("BRINSTAR", "08", 12 * 16, -2 * 15);
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -2 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "03", 12 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -3 * 15, "Orange");
 
         // Verticle Shaft top door branch horizontal
-        buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15);
 
-        buildSingleRoom("BRINSTAR", "1E", 19 * 16, -11 * 15);
-        //Verticle shaft diverge up/down
-        buildSingleRoom("BRINSTAR", "08", 19 * 16, -13 * 15);
-        buildSingleRoom("BRINSTAR", "2E", 19 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "28", 18 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "29", 17 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "29", 16 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "1A", 15 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "0A", 14 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "08", 13 * 16, -12 * 15);
 
-        buildSingleRoom("BRINSTAR", "1F", 20 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "21", 21 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "21", 22 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "07", 23 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "22", 24 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "1D", 25 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "1B", 26 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "21", 27 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "20", 28 * 16, -11 * 15);
-        buildSingleRoom("BRINSTAR", "04", 29 * 16, -11 * 15);
-        // Verticle Shaft upper right branch hori/vert
-        buildSingleRoom("BRINSTAR", "08", 29 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "02", 29 * 16, -10 * 15);
 
-        buildSingleRoom("BRINSTAR", "04", 29 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "28", 28 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "29", 27 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "29", 26 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "1A", 25 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "0A", 24 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "08", 23 * 16, -9 * 15);
+        ////Room with all the pipes that had overlaps
+        buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15, "Green");
 
-        buildSingleRoom("BRINSTAR", "06", 29 * 16, -8 * 15);
-        buildSingleRoom("BRINSTAR", "08", 29 * 16, -6 * 15);
+        buildSingleRoom("BRINSTAR", "1E", 19 * 16, -11 * 15, "Green");
 
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -4 * 15);
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -5 * 15);
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -6 * 15);
-        buildSingleRoom("BRINSTAR", "05", 12 * 16, -7 * 15);
+        ////Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 19 * 16, -13 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "2E", 19 * 16, -12 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "28", 18 * 16, -12 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "29", 17 * 16, -12 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "29", 16 * 16, -12 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "1A", 15 * 16, -12 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "0A", 14 * 16, -12 * 15, "White");
+        buildSingleRoom("BRINSTAR", "08", 13 * 16, -12 * 15, "Orange");
 
-        // Verticle Shaft mid door branch horizontal
-        buildSingleRoom("BRINSTAR", "0C", 13 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0E", 14 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0E", 15 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0D", 16 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "1F", 20 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "21", 21 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "21", 22 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "07", 23 * 16, -11 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "22", 24 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "1D", 25 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "1B", 26 * 16, -11 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "21", 27 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "20", 28 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -11 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "10", 17 * 16, -7 * 15);
-        // Verticle shaft diverge up/down
-        buildSingleRoom("BRINSTAR", "08", 17 * 16, -8 * 15);
-        buildSingleRoom("BRINSTAR", "11", 17 * 16, -6 * 15);
-        buildSingleRoom("BRINSTAR", "11", 17 * 16, -5 * 15);
-        buildSingleRoom("BRINSTAR", "08", 17 * 16, -4 * 15);
+        //// Verticle Shaft upper right branch hori/vert
+        buildSingleRoom("BRINSTAR", "08", 29 * 16, -12 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "02", 29 * 16, -10 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "0C", 18 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0F", 19 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0D", 20 * 16, -7 * 15);
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -9 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "10", 21 * 16, -7 * 15);
-        // Verticle shaft diverge up/down
-        buildSingleRoom("BRINSTAR", "08", 21 * 16, -8 * 15);
-        buildSingleRoom("BRINSTAR", "06", 21 * 16, -6 * 15);
-        buildSingleRoom("BRINSTAR", "04", 21 * 16, -5 * 15);
-        buildSingleRoom("BRINSTAR", "08", 21 * 16, -4 * 15);
+        //Default colors
+        buildSingleRoom("BRINSTAR", "28", 28 * 16, -9 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "29", 27 * 16, -9 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "29", 26 * 16, -9 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "1A", 25 * 16, -9 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "0A", 24 * 16, -9 * 15, "White");
 
-        buildSingleRoom("BRINSTAR", "28", 20 * 16, -5 * 15);
-        buildSingleRoom("BRINSTAR", "1A", 19 * 16, -5 * 15);
-        buildSingleRoom("BRINSTAR", "0A", 18 * 16, -5 * 15);
+        buildSingleRoom("BRINSTAR", "08", 23 * 16, -9 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "0C", 22 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0E", 23 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "1B", 24 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0F", 25 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0E", 26 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0F", 27 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "0D", 28 * 16, -7 * 15);
-        buildSingleRoom("BRINSTAR", "04", 29 * 16, -7 * 15);
 
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -8 * 15);
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -9 * 15);
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -10 * 15);
-        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
 
-        // Verticle Shaft bottom door branch horizontal
-        buildSingleRoom("BRINSTAR", "12", 13 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "14", 14 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "15", 15 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "14", 16 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "07", 17 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "16", 18 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "15", 19 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "13", 20 * 16, -3 * 15);
-        buildSingleRoom("BRINSTAR", "0B", 21 * 16, -3 * 15);
+        buildSingleRoom("BRINSTAR", "06", 29 * 16, -8 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "08", 29 * 16, -6 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15);
-        buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -4 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -5 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -6 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "05", 12 * 16, -7 * 15, "Orange");
+
+        //// Verticle Shaft mid door branch horizontal
+        buildSingleRoom("BRINSTAR", "0C", 13 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0E", 14 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0E", 15 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0D", 16 * 16, -7 * 15, "Orange");
+
+
+        buildSingleRoom("BRINSTAR", "10", 17 * 16, -7 * 15, "Blue");
+        //// Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -8 * 15,"Orange");
+        buildSingleRoom("BRINSTAR", "11", 17 * 16, -6 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "11", 17 * 16, -5 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -4 * 15, "Orange");
+
+        buildSingleRoom("BRINSTAR", "0C", 18 * 16, -7 * 15,"Blue");
+        buildSingleRoom("BRINSTAR", "0F", 19 * 16, -7 * 15,"Blue");
+        buildSingleRoom("BRINSTAR", "0D", 20 * 16, -7 * 15,"Blue");
+
+        buildSingleRoom("BRINSTAR", "10", 21 * 16, -7 * 15,"Blue");
+        //// Verticle shaft diverge up/down
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -8 * 15,"Orange");
+        buildSingleRoom("BRINSTAR", "06", 21 * 16, -6 * 15,"Blue");
+        buildSingleRoom("BRINSTAR", "04", 21 * 16, -5 * 15,"Blue");
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -4 * 15,"Orange");
+
+        buildSingleRoom("BRINSTAR", "28", 20 * 16, -5 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "1A", 19 * 16, -5 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "0A", 18 * 16, -5 * 15, "White");
+
+        buildSingleRoom("BRINSTAR", "0C", 22 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0E", 23 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "1B", 24 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0F", 25 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0E", 26 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0F", 27 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0D", 28 * 16, -7 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "04", 29 * 16, -7 * 15, "Orange");
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -8 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -9 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -10 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15, "Orange");
+
+        //// Verticle Shaft bottom door branch horizontal
+        buildSingleRoom("BRINSTAR", "12", 13 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "14", 14 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "15", 15 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "14", 16 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "07", 17 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "16", 18 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "15", 19 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "13", 20 * 16, -3 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "0B", 21 * 16, -3 * 15, "White");
+
+        buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15, "Orange");
 
 
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
@@ -1470,7 +1932,7 @@ public class CreatePrefabEditor
                 {
                     if (match.name.Contains("child"))
                     {
-                       // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                        // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
                         toDelete.Add(scenePrefab.gameObject);
 
                         foreach (Transform child in scenePrefab.transform)
@@ -1525,109 +1987,80 @@ public class CreatePrefabEditor
 
         sw.Start();
 
-        buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15);
-        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15);
-
-        // 1st Cross section that goes up and down
-        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15);
-
-        // Verticle shaft 1 mid secction
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15);
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15);
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15);
-        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15);
-        
-        // Room with all the pipes that had overlaps
-        //buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
-        //buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
-        //buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15);
-        //buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15);
-        //buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15);
-        //buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15);
-
-        foreach (GameObject scenePrefab in scenePrefabs)
-        {
-            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
-            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
-            && (x.name.Contains("BRINSTAR_")) && toDelete.IndexOf(x.gameObject) < 0).ToList();
-
-            if (foundMatch.Count > 0)
-            {
-                foreach (var match in foundMatch)
-                {
-                    if (match.name.Contains("child"))
-                    {
-                        UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
-                        toDelete.Add(scenePrefab.gameObject);
-
-                        foreach (Transform child in scenePrefab.transform)
-                        {
-                            toDelete.Add(child.gameObject);
-                        }
-                    }
-                }
-
-            }
-        }
+        //buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15, "Aqua");
 
 
-        //Delete the original prefabs
-        foreach (var del in toDelete)
-        {
-            GameObject.DestroyImmediate(del);
-        }
-        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished building rooms");
-        sw.Stop();
+
+        //// 1st Cross section that goes up and down
+        //buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15, "Aqua");
+
+        //// Verticle shaft 1 mid secction
+        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15, "Aqua");
+
+
+        ////Room with all the pipes that had overlaps
+        buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15, "Green");
+        buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15, "Green");
 
 
 
 
 
-        //Console.WriteLine(sw.ElapsedMilliseconds);
-        //// Verticle shaft 1 bottom secction
-        //buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15);
+
+
+        // Verticle shaft 1 bottom secction
+        //buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15, "Aqua");
 
         //// Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
-        //buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15);
+        //buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15, "Aqua");
 
         //// Past first coordidor until the second verticle cooridor
-        //buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15);
-        //buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15);
-        //buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15);
-        //buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15);
-        //buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15);
+        //buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15, "Aqua");
 
         //// Verticle Shaft 2 Bottom section
-        //buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15);
+        //buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15, "Aqua");
 
         //// Verticle Shaft 2 mid section
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -1 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -2 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -3 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -4 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -5 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -6 * 15);
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -1 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -2 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -3 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -4 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -5 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -6 * 15, "Aqua");
 
-        //// Veritcle Shaft 2 Mid section / right exit
-        //buildSingleRoom("BRINSTAR", "03", 10 * 16, -7 * 15);
+        ////// Veritcle Shaft 2 Mid section / right exit
+        //buildSingleRoom("BRINSTAR", "03", 10 * 16, -7 * 15, "Aqua");
 
-        //// Palette switch room for Brinstar
-        //buildSingleRoom("BRINSTAR", "00", 11 * 16, -7 * 15);
+        ////// Palette switch room for Brinstar
+        //buildSingleRoom("BRINSTAR", "00", 11 * 16, -7 * 15, "Aqua");
 
-        //// Verticle Shaft 2 mid section cont
-        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -8 * 15);
+        ////// Verticle Shaft 2 mid section cont
+        //buildSingleRoom("BRINSTAR", "06", 10 * 16, -8 * 15, "Aqua");
 
-        //// Veritcle Shaft 2 Mid section / Left exit
-        //buildSingleRoom("BRINSTAR", "04", 10 * 16, -9 * 15);
 
-        //// Mid horizontal section
-        //buildSingleRoom("BRINSTAR", "28", 9 * 16, -9 * 15);
-        //buildSingleRoom("BRINSTAR", "29", 8 * 16, -9 * 15);
+        ////// Veritcle Shaft 2 Mid section / Left exit
+        //buildSingleRoom("BRINSTAR", "04", 10 * 16, -9 * 15, "Aqua");
+
+        ////// Mid horizontal section
+        //buildSingleRoom("BRINSTAR", "28", 9 * 16, -9 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "29", 8 * 16, -9 * 15, "Aqua");
         //buildSingleRoom("BRINSTAR", "1A", 7 * 16, -9 * 15);
-        //buildSingleRoom("BRINSTAR", "0A", 6 * 16, -9 * 15);
+        //buildSingleRoom("BRINSTAR", "0A", 6 * 16, -9 * 15, "White");
         //buildSingleRoom("BRINSTAR", "08", 5 * 16, -9 * 15);
 
         //// Veritcle Shaft 2 Mid section / Above left mid exit
@@ -1655,8 +2088,8 @@ public class CreatePrefabEditor
         //buildSingleRoom("BRINSTAR", "03", 12 * 16, -11 * 15);
 
         //// Verticle Shaft top door branch horizontal
-        //buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
-        //buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
+        // buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15);
+        // buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15);
         //buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15);
         //buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15);
         //buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15);
@@ -1695,19 +2128,19 @@ public class CreatePrefabEditor
         //buildSingleRoom("BRINSTAR", "0A", 24 * 16, -9 * 15);
         //buildSingleRoom("BRINSTAR", "08", 23 * 16, -9 * 15);
 
-        //buildSingleRoom("BRINSTAR", "06", 29 * 16, -8 * 15);
-        //buildSingleRoom("BRINSTAR", "08", 29 * 16, -6 * 15);
+        //buildSingleRoom("BRINSTAR", "06", 29 * 16, -8 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "08", 29 * 16, -6 * 15, "Orange");
 
-        //buildSingleRoom("BRINSTAR", "06", 12 * 16, -4 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 12 * 16, -5 * 15);
-        //buildSingleRoom("BRINSTAR", "06", 12 * 16, -6 * 15);
-        //buildSingleRoom("BRINSTAR", "05", 12 * 16, -7 * 15);
+        //buildSingleRoom("BRINSTAR", "06", 12 * 16, -4 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "06", 12 * 16, -5 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "06", 12 * 16, -6 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "05", 12 * 16, -7 * 15, "Orange");
 
-        //// Verticle Shaft mid door branch horizontal
-        //buildSingleRoom("BRINSTAR", "0C", 13 * 16, -7 * 15);
-        //buildSingleRoom("BRINSTAR", "0E", 14 * 16, -7 * 15);
-        //buildSingleRoom("BRINSTAR", "0E", 15 * 16, -7 * 15);
-        //buildSingleRoom("BRINSTAR", "0D", 16 * 16, -7 * 15);
+        ////// Verticle Shaft mid door branch horizontal
+        //buildSingleRoom("BRINSTAR", "0C", 13 * 16, -7 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "0E", 14 * 16, -7 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "0E", 15 * 16, -7 * 15, "Orange");
+        //buildSingleRoom("BRINSTAR", "0D", 16 * 16, -7 * 15, "Orange");
 
         //buildSingleRoom("BRINSTAR", "10", 17 * 16, -7 * 15);
         //// Verticle shaft diverge up/down
@@ -1760,7 +2193,43 @@ public class CreatePrefabEditor
         //buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
 
 
+        foreach (GameObject scenePrefab in scenePrefabs)
+        {
+            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+            && (x.name.Contains("BRINSTAR_")) && toDelete.IndexOf(x.gameObject) < 0).ToList();
 
+            if (foundMatch.Count > 0)
+            {
+                foreach (var match in foundMatch)
+                {
+                    if (match.name.Contains("child"))
+                    {
+                        //UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                        toDelete.Add(scenePrefab.gameObject);
+
+                        foreach (Transform child in scenePrefab.transform)
+                        {
+                            toDelete.Add(child.gameObject);
+                        }
+                    }
+                }
+
+            }
+        }
+
+
+        //Delete the original prefabs
+        foreach (var del in toDelete)
+        {
+            GameObject.DestroyImmediate(del);
+        }
+
+        //Console.WriteLine(sw.ElapsedMilliseconds);
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished building rooms");
+        sw.Stop();
+
+        GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
 
         // Path to the nes rom for Metroid US
         //structureBuilder("Assets/Resources/test.data", 0x6C94, "Brinstar");
@@ -1804,7 +2273,7 @@ public class CreatePrefabEditor
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "13", 0x634B, 0x634A, 64, 0, 0x4011, 0x8000);
 
         // GameObject.Find("Plane").transform.rotation = Quaternion.Euler(180, 0, 0);
-        GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
+
 
         //// The rest of Brinstar
         //buildRoomDataRef("Assets/Resources/test.data", "BRINSTAR", "00", 0x6325, 0x6324, 80, 0, 0x4011, 0x8000);
@@ -2007,8 +2476,7 @@ public class CreatePrefabEditor
         //GameObject.Find("Plane").transform.Rotate(180, 0, 0);
 
     }
-
-
+    
 
     [MenuItem("MetroidVR/Create Scene", true)]
     bool ValidateCreatePrefab()
@@ -2016,17 +2484,17 @@ public class CreatePrefabEditor
         return Selection.activeGameObject != null;
     }
 
-    // Create Empty Prefab and then Replace 
-    static void CreateNew(GameObject obj, string localPath)
+    [MenuItem("MetroidVR/Create_With_Enemies_On")]
+    public static void ForceOfflineTrue()
     {
-        //NestedPrefab prefab = PrefabUtility.CreateEmptyPrefab(localPath);
-
-        // Will ultimately create a game object mapping equal to the count of tiles in the structure
-        GameObject childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-vent-aqua"), new Vector3(1000, 800, 1200), Quaternion.Euler(0, -180, 0)) as GameObject;
-
-        //childTileObject.transform.SetParent(GameObject.Find("p-home").transform, false);
-
-        //PrefabUtility.ReplacePrefab(obj, prefab, ReplacePrefabOptions.ConnectToPrefab);
+        drawEnemies = true;
+        UnityEngine.Debug.Log("Enemy drawing enabled = " + drawEnemies);
     }
-
+    [MenuItem("MetroidVR/Create_With_Enemies_Off")]
+    public static void ForceOfflineFalse()
+    {
+        drawEnemies = false;
+        UnityEngine.Debug.Log("Enemy drawing enabled = " + drawEnemies);
+    }
+    
 }
