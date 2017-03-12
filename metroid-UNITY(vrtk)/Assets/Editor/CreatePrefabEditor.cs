@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using System.Diagnostics;
 using System.Linq;
 using System.Globalization;
+using UnityEngine.UI;
 
 public class CreatePrefabEditor
 {
@@ -25,6 +26,10 @@ public class CreatePrefabEditor
 
     public static List<GameObject> scenePrefabs = new List<GameObject>();
 
+    public static List<string> enemyList = new List<string>();
+    public static List<string> enemyMatchingList = new List<string>();
+    public static HashSet<string> myHashSet = new HashSet<string>();
+
     // Pre-fab children variable
     public GameObject childTileObject;
 
@@ -39,10 +44,12 @@ public class CreatePrefabEditor
     public static Transform lastChildPosition;
     public static float width;
     public static bool drawEnemies = false;
+    public static bool onlyEnemies = false;
 
     // Build a list to hold the multidimensional data mapped between NES tile byte assigments and Unity prefabs
     public static List<tileMapperList> tileMap = new List<tileMapperList>();
     public static List<roomDataList> roomDataList = new List<roomDataList>();
+    public static List<enemyDataList> enemyDataList = new List<enemyDataList>();
 
     // Setup stop watch to troubleshoot slow issues
     public static Stopwatch sw = Stopwatch.StartNew();
@@ -52,6 +59,15 @@ public class CreatePrefabEditor
     //public const string br_c_rock2_aqua = "";
     //public const string br_c_spiral_aqua = "";
     //public const string br_c_towers_aqua = "";
+
+    public static void addToList(string enemyType, string extraData)
+    {
+        if (myHashSet.Add(enemyType))
+        {
+            enemyMatchingList.Add(enemyType);
+            enemyList.Add(enemyType + extraData);
+        }
+    }
 
     public static string HexStr(byte[] p)
     {
@@ -205,18 +221,21 @@ public class CreatePrefabEditor
                 //
                 // if (structureRead == "0B" || structureRead == "1F")
                 // {
-                structurePreFabBuilder(
-                    "Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt",
-                    int.Parse(nesYXcoords.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) + xMapOffset,
-                    int.Parse(nesYXcoords.Substring(0, 1), System.Globalization.NumberStyles.HexNumber) + yMapOffset,
-                    areaName,
-                    structureRead,
-                    roomNumber, targetPalette
-                    );
+                if (onlyEnemies == false)
+                {
+                    structurePreFabBuilder(
+                        "Assets/Resources/struct/" + areaName.Trim() + "/" + structureRead.Trim() + ".txt",
+                        int.Parse(nesYXcoords.Substring(1, 1), System.Globalization.NumberStyles.HexNumber) + xMapOffset,
+                        int.Parse(nesYXcoords.Substring(0, 1), System.Globalization.NumberStyles.HexNumber) + yMapOffset,
+                        areaName,
+                        structureRead,
+                        roomNumber, targetPalette
+                        );
+                }
                 //  }
             }
         }
-        
+
         if (nesYXcoords == "FD" && drawEnemies == true)
         {
             // Create default parent enemy
@@ -281,16 +300,74 @@ public class CreatePrefabEditor
 
                     //UnityEngine.Debug.Log(System.Int32.Parse(thing2.Substring(0, 1), NumberStyles.AllowHexSpecifier));
 
-                    GameObject enemyObject = NestedPrefab.Instantiate(Resources.Load("br-c-lava-orange-base")) as GameObject;
-                    enemyObject.transform.position = new Vector3(xOffset, yOffset, 0);
-                    // UnityEngine.Debug.Log(yOffset + " <y after x> " + xOffset);
+                    
 
-                    enemyObject.gameObject.name = "Enemy_Sprite_X_Type_" + thing2.Substring(1, 1);
+                    //UnityEngine.UI.Image enemyObject = .Instantiate("Enemy") as UnityEngine.UI.Image;
+                    //GameObject enemyObject = new GameObject("Enemy");
+                    //enemyObject.AddComponent<UnityEngine.UI.Image>();
+
+                    //UnityEngine.UI.Image backSprite = Resources.Load("Zoomer", typeof(UnityEngine.UI.Image)) as UnityEngine.UI.Image;
+                    //enemyObject.GetComponent<UnityEngine.UI.Image>() = backSprite;
+
+                    //GameObject enemyObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
+
+                    //Material quadMaterial = (Material)Resources.Load("Whatever");
+
+                    //Texture texture = Resources.Load<Texture>("TextureName") as Texture;
+
+                    //Texture2D myTexture = Resources.Load("Zoomer") as Texture2D;
+                    //enemyObject.GetComponent<Renderer>().material.mainTexture = texture;
+
+
+
+
+
+
+                    
+
+                    if (roomNumber != "2B")
+                    {
+                        GameObject enemyObject = new GameObject(parentEnemyName);
+                        var currentEnemy = enemyDataList.Find(enemy => enemy.enemyNumber == thing2);
+                        try
+                        {
+                            enemyObject.AddComponent<SpriteRenderer>();
+                            SpriteRenderer otherSR = enemyObject.GetComponent<SpriteRenderer>();
+                            otherSR.sprite = Resources.Load<Sprite>(currentEnemy.enemySpriteFileName);
+                            enemyObject.transform.localScale += new Vector3(6f, 6f, 0.1f);
+
+                            enemyObject.transform.position = new Vector3(xOffset, (yOffset)+0.5f, 0);
+                            // UnityEngine.Debug.Log(yOffset + " <y after x> " + xOffset);
+
+                            enemyObject.gameObject.name = "Enemy_Sprite_X_Type_" + thing2.Substring(1, 1);
+
+                            enemyObject.transform.SetParent(parentEnemy.gameObject.transform);
+                        }
+                        catch
+                        {
+                            UnityEngine.Debug.Log(thing2 + "," + yOffset + "," + xOffset + "," + parentEnemyName);
+                        }
+                        try
+                        {
+                            // UnityEngine.Debug.Log(currentEnemy.enemyNumber + (currentEnemy.enemyName + "," + currentEnemy.enemyColor));
+
+                            using (StreamWriter outputFile = new StreamWriter(@"c:\temp\DistinctEnemies.txt", true))
+                            {
+                                addToList(currentEnemy.enemyNumber, (currentEnemy.enemyName + "," + currentEnemy.enemyColor));
+
+                                //  outputFile.WriteLine(thing2 + "," + yOffset + "," + xOffset + "," + parentEnemyName);
+                            }
+                        }
+                        catch
+                        {
+                          //  UnityEngine.Debug.Log(thing2 + "<-- enemy that failed lookup");
+                        }
+                    }
 
                     //  UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
                     // UnityEngine.Debug.Log("xoffset = " + xMapOffset + " yOffset = " + yMapOffset + " Sprite Slot =" + thing1.Substring(0, 1) + " Item Type = " + thing1.Substring(1, 1) + " Difficulty =" + thing2.Substring(0, 1) + " Enemy Type = " + thing2.Substring(1, 1) + " offset Y= " + thing3.Substring(0, 1) + " offset X= " + thing3.Substring(1, 1) + " Room # = " + roomNumber + " ending offset was " + fileStream.Position.ToString("X") + " starting offset was " + offset);
                     ///UnityEngine.Debug.Log(" Room # = " + roomNumber + " ending offset was " + fileStream.Position.ToString("X") + " starting offset was " + offset.ToString("X") + " Sprite Slot =" + thing1.Substring(0, 1) + " Item Type = " + thing1.Substring(1, 1) + " Difficulty =" + thing2.Substring(0, 1) + " Enemy Type = " + thing2.Substring(1, 1));
-                    enemyObject.transform.SetParent(parentEnemy.gameObject.transform);
+                    
                     //}
                     //UnityEngine.Debug.Log((float)(xMapOffset) + System.Int32.Parse(thing3.Substring(1, 1), NumberStyles.AllowHexSpecifier)); // + (float)Convert.ToInt32(thing3.Substring(1, 1)));
 
@@ -1078,6 +1155,20 @@ public class CreatePrefabEditor
 
     }
 
+    private static void buildEnemyList()
+    {
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "02", enemyName = "Waver", enemyColor = "green", enemySpriteFileName = "WaverGreenR" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "03", enemyName = "Ripper", enemyColor = "yellow", enemySpriteFileName = "RipperR" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "04", enemyName = "Skree", enemyColor = "normal", enemySpriteFileName = "Skree" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "05", enemyName = "Zoomer", enemyColor = "yellow", enemySpriteFileName = "Zoomer" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "06", enemyName = "Rio", enemyColor = "yellow", enemySpriteFileName = "Rio" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "07", enemyName = "Zeb", enemyColor = "yellow", enemySpriteFileName = "ZebR" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "82", enemyName = "Waver", enemyColor = "blue", enemySpriteFileName = "WaverBlueR" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "85", enemyName = "Zoomer", enemyColor = "red", enemySpriteFileName = "ZoomerRed" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "86", enemyName = "Rio", enemyColor = "red", enemySpriteFileName = "RioRed" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "87", enemyName = "Zeb", enemyColor = "red", enemySpriteFileName = "ZebRedR" });
+        enemyDataList.Add(new enemyDataList() { enemyNumber = "83", enemyName = "Ripper", enemyColor = "red", enemySpriteFileName = "RipperRedR" });
+    }
 
     private static void buildRoomLists()
     {
@@ -1671,26 +1762,43 @@ public class CreatePrefabEditor
 
     }
 
-    [MenuItem("MetroidVR/Maya Export Test")]
-    private static void testMaya()
+    //[MenuItem("MetroidVR/Maya Export Test")]
+    //private static void testMaya()
+    //{
+    //    // Load the static list of Prefab<->Structure mapping data
+    //    loadRuntimeVariables();
+    //    quickTester();
+    //}
+
+
+    [MenuItem("MetroidVR/Draw Brinstar Enemies")]
+    private static void CreatePrefabComplete_Enemies()
     {
-        // Load the static list of Prefab<->Structure mapping data
-        loadRuntimeVariables();
-        quickTester();
+        onlyEnemies = true;
+        drawEnemies = true;
+        drawAllBrinstar();
     }
 
-
-    [MenuItem("MetroidVR/Render Brinstar Complete")]
-    private static void CreatePrefabComplete()
+    private static void drawAllBrinstar()
     {
+        buildEnemyList();
+
+        if (File.Exists(@"c:\temp\DistinctEnemies.txt"))
+        {
+            File.Delete(@"c:\temp\DistinctEnemies.txt");
+        }
+
+
 
         // Create temp black background :)
+        if (GameObject.Find("Plane") == null)
+        {
+            // Create the plane automatically
+            var sceneParent = new GameObject("Plane");
 
-        // Create the plane automatically
-        var sceneParent = new GameObject("Plane");
-
-        // Make sure the plane created is set to 0,0,0 coords
-        sceneParent.transform.position += new Vector3(0, 0, 0);
+            // Make sure the plane created is set to 0,0,0 coords
+            sceneParent.transform.position += new Vector3(0, 0, 0);
+        }
 
         sw.Start();
         // Load the static list of Prefab<->Structure mapping data
@@ -1870,21 +1978,21 @@ public class CreatePrefabEditor
 
         buildSingleRoom("BRINSTAR", "10", 17 * 16, -7 * 15, "Blue");
         //// Verticle shaft diverge up/down
-        buildSingleRoom("BRINSTAR", "08", 17 * 16, -8 * 15,"Orange");
+        buildSingleRoom("BRINSTAR", "08", 17 * 16, -8 * 15, "Orange");
         buildSingleRoom("BRINSTAR", "11", 17 * 16, -6 * 15, "Blue");
         buildSingleRoom("BRINSTAR", "11", 17 * 16, -5 * 15, "Blue");
         buildSingleRoom("BRINSTAR", "08", 17 * 16, -4 * 15, "Orange");
 
-        buildSingleRoom("BRINSTAR", "0C", 18 * 16, -7 * 15,"Blue");
-        buildSingleRoom("BRINSTAR", "0F", 19 * 16, -7 * 15,"Blue");
-        buildSingleRoom("BRINSTAR", "0D", 20 * 16, -7 * 15,"Blue");
+        buildSingleRoom("BRINSTAR", "0C", 18 * 16, -7 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "0F", 19 * 16, -7 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "0D", 20 * 16, -7 * 15, "Blue");
 
-        buildSingleRoom("BRINSTAR", "10", 21 * 16, -7 * 15,"Blue");
+        buildSingleRoom("BRINSTAR", "10", 21 * 16, -7 * 15, "Blue");
         //// Verticle shaft diverge up/down
-        buildSingleRoom("BRINSTAR", "08", 21 * 16, -8 * 15,"Orange");
-        buildSingleRoom("BRINSTAR", "06", 21 * 16, -6 * 15,"Blue");
-        buildSingleRoom("BRINSTAR", "04", 21 * 16, -5 * 15,"Blue");
-        buildSingleRoom("BRINSTAR", "08", 21 * 16, -4 * 15,"Orange");
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -8 * 15, "Orange");
+        buildSingleRoom("BRINSTAR", "06", 21 * 16, -6 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "04", 21 * 16, -5 * 15, "Blue");
+        buildSingleRoom("BRINSTAR", "08", 21 * 16, -4 * 15, "Orange");
 
         buildSingleRoom("BRINSTAR", "28", 20 * 16, -5 * 15, "Blue");
         buildSingleRoom("BRINSTAR", "1A", 19 * 16, -5 * 15, "Blue");
@@ -1954,12 +2062,33 @@ public class CreatePrefabEditor
         UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished generating rooms");
         sw.Stop();
 
+
+
+
+
+        StreamWriter file = new System.IO.StreamWriter(@"c:\temp\DistinctEnemies.txt");
+        foreach (string line in enemyList)
+            file.WriteLine(line);
+        file.Close();
+
+    }
+
+    [MenuItem("MetroidVR/Render Brinstar: Rooms Only")]
+    private static void CreatePrefabComplete()
+    {
+        onlyEnemies = false;
+        drawEnemies = false;
+        drawAllBrinstar();
+
+
     }
 
     [MenuItem("MetroidVR/Render Brinstar First Area")]
     private static void CreatePrefabFirstArea()
     {
-
+        onlyEnemies = false;
+        drawEnemies = false;
+        
         // Create the plane automatically
         var sceneParent = new GameObject("Plane");
 
@@ -1987,22 +2116,22 @@ public class CreatePrefabEditor
 
         sw.Start();
 
-        //buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15, "Aqua");
 
 
 
         //// 1st Cross section that goes up and down
-        //buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15, "Aqua");
 
         //// Verticle shaft 1 mid secction
-        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15, "Aqua");
 
 
         ////Room with all the pipes that had overlaps
@@ -2020,17 +2149,17 @@ public class CreatePrefabEditor
 
 
         // Verticle shaft 1 bottom secction
-        //buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15, "Aqua");
 
         //// Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
-        //buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15, "Aqua");
 
         //// Past first coordidor until the second verticle cooridor
-        //buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15, "Aqua");
-        //buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15, "Aqua");
 
         //// Verticle Shaft 2 Bottom section
         //buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15, "Aqua");
@@ -2476,7 +2605,7 @@ public class CreatePrefabEditor
         //GameObject.Find("Plane").transform.Rotate(180, 0, 0);
 
     }
-    
+
 
     [MenuItem("MetroidVR/Create Scene", true)]
     bool ValidateCreatePrefab()
@@ -2484,17 +2613,17 @@ public class CreatePrefabEditor
         return Selection.activeGameObject != null;
     }
 
-    [MenuItem("MetroidVR/Create_With_Enemies_On")]
-    public static void ForceOfflineTrue()
-    {
-        drawEnemies = true;
-        UnityEngine.Debug.Log("Enemy drawing enabled = " + drawEnemies);
-    }
-    [MenuItem("MetroidVR/Create_With_Enemies_Off")]
-    public static void ForceOfflineFalse()
-    {
-        drawEnemies = false;
-        UnityEngine.Debug.Log("Enemy drawing enabled = " + drawEnemies);
-    }
-    
+    //[MenuItem("MetroidVR/Create_With_Enemies_On")]
+    //public static void ForceOfflineTrue()
+    //{
+    //    drawEnemies = true;
+    //    UnityEngine.Debug.Log("Enemy drawing enabled = " + drawEnemies);
+    //}
+    //[MenuItem("MetroidVR/Create_With_Enemies_Off")]
+    //public static void ForceOfflineFalse()
+    //{
+    //    drawEnemies = false;
+    //    UnityEngine.Debug.Log("Enemy drawing enabled = " + drawEnemies);
+    //}
+
 }

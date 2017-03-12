@@ -20,6 +20,13 @@ public class structList
 
 }
 
+public class enemyDataList
+{
+    public string enemyNumber { get; set; }
+    public string enemyName { get; set; }
+    public string enemyColor { get; set; }
+    public string enemySpriteFileName { get; set; }
+}
 
 public class roomDataList
 {
