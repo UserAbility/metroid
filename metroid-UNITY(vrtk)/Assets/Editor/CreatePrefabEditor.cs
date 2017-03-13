@@ -32,6 +32,7 @@ public class CreatePrefabEditor
 
     // Pre-fab children variable
     public GameObject childTileObject;
+    public static GameObject currentStructure;
 
     // Map Data array
     public static string[][] mapStructure;
@@ -45,6 +46,7 @@ public class CreatePrefabEditor
     public static float width;
     public static bool drawEnemies = false;
     public static bool onlyEnemies = false;
+    public static bool onlyPalette = false;
 
     // Build a list to hold the multidimensional data mapped between NES tile byte assigments and Unity prefabs
     public static List<tileMapperList> tileMap = new List<tileMapperList>();
@@ -396,22 +398,25 @@ public class CreatePrefabEditor
             // CHR table data the structure is related to.
             string structName = Path.GetFileNameWithoutExtension(((FileStream)sr.BaseStream).Name);
 
+
             // Re-work the structname in case of duplicates
-            structName = areaName + "_" + roomNumber + "_" + structureNumber + "_" + (FindGameObjectsWithSameName(structName).Length + 1).ToString();
+            structName = areaName + "_" + roomNumber + "_" + structureNumber + "_" + palette;
+            //structName = areaName + "_" + roomNumber + "_" + structureNumber + "_" + (FindGameObjectsWithSameName(structName).Length + 1).ToString();
 
-            // Create default parent
-            var currentStructure = new GameObject(structName);
+            // Only generate a new parent object if this isn't a palette swap action
+            if (onlyPalette == false)
+            {
+                // Create default parent
+                currentStructure = new GameObject(structName);
 
-            currentStructure.AddComponent<MeshRenderer>();
+                currentStructure.AddComponent<MeshRenderer>();
 
+                // Generate our structure at specific X,Y,Z coords to match NES placement
+                currentStructure.transform.position += new Vector3(nesX, nesY, 0);
 
-            // Generate our structure at specific X,Y,Z coords to match NES placement
-            currentStructure.transform.position += new Vector3(nesX, nesY, 0);
-
-            //currentStructure.transform.localScale += new Vector3(0.1f, -0.1f, 0.1f);
-
-            // Set the new parent object to the plane parent
-            currentStructure.transform.SetParent(GameObject.Find("Plane").transform, true);
+                // Set the new parent object to the plane parent
+                currentStructure.transform.SetParent(GameObject.Find("Plane").transform, true);
+            }
 
             string structureData = Regex.Replace(sr.ReadToEnd(), @"\t|\n|\r|", "");
             string[] structureBytes = structureData.Split(' ');
@@ -481,131 +486,71 @@ public class CreatePrefabEditor
 
                                 if (prefabName.Replace("_", "-") != "")
                                 {
+                                    //if (onlyPalette == false)
+                                   // {
+                                        //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
+                                        childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
+                                        childTileObject.gameObject.name = (structName + "_|" + prefabName + "|_child_" + byteCount + "_Color=" + palette).ToString();
+
+                                        foreach (Transform child in childTileObject.transform)
+                                        {
+
+                                            //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
+                                            //child.transform.position = new Vector3(childTileObject.transform.position.x, childTileObject.transform.position.y, -50f);
+                                            child.transform.localScale = new Vector3(1f, 1f, 1f);
+                                            child.transform.SetParent(childTileObject.transform, false);
 
 
+                                        }
 
+                                        childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
+                                        childTileObject.transform.SetParent(currentStructure.transform, false);
 
-                                    //if (!prefabName.ToUpper().Contains("VENT")
+                                        // All Tiles get colliders
+                                        BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
+                                        _bc.center = new Vector3(0, 50, 0);
+                                        _bc.size = new Vector3(100, 100, 100);
 
-                                    //    )
-                                    //{
-                                    //    if (prefabName.ToUpper().Contains("TUBE"))
-                                    //    {
-                                    //        UnityEngine.Debug.Log(roomNumber + " <-- Room Number | Palette number -->" + palette + " prefabName = " + prefabName);
-                                    //        if (!prefabName.ToLower().Contains("br-m-tube-aqua-hori"))
-                                    //        {
-                                    //            prefabName = prefabName.ToUpper().Replace("AQUA", "BLUE");
-                                    //        }
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        prefabName = prefabName.ToUpper().Replace("AQUA", "ORANGE");
-                                    //    }
-                                    //    //  prefabName = prefabName.ToUpper().Replace("BLUE", "ORANGE");
+                                        scenePrefabs.Add(childTileObject.gameObject);
 
+                                        currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
                                     //}
+                                    //else
+                                   // {
+                                        //try
+                                        //{
+                                            
+                                        //    childTileObject = GameObject.Find((structName + "_|" + prefabName + "|_child_" + byteCount).ToString()).transform.gameObject;
+                                            paletteChanger(childTileObject, palette);
+                                        //}
+                                        //catch {
+                                        //   // UnityEngine.Debug.Log(structName + " <-- structname | --> prefabName " + prefabName + " Full name = " + structName + "_|" + prefabName + "|_child_" + byteCount);
+                                        //}
+                                        //GameObject[] gameObjects = NestedPrefab.FindObjectsOfType(typeof(GameObject)) as GameObject[];
 
-                                    //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
-                                    childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
-                                    childTileObject.gameObject.name = (structName + "_|" + prefabName + "|_child_" + byteCount).ToString();
+                                        //for (var i = 0; i < gameObjects.Count(); i++)
+                                        //{
+                                        //    if (gameObjects[i].name.Contains(("_|" + prefabName + "|_child_" + byteCount).ToString()))
+                                        //    {
+                                        //        childTileObject = gameObjects[i];
+                                        //        paletteChanger(childTileObject, palette);
+                                        //    }
+                                        //    // Find existing game object and set it for palette replacement
 
+                                        //}
+                                   // }
 
-                                    //childTileObject.AddComponent<MeshRenderer>();
-
-                                    //childTileObject.GetComponent<Renderer>().material.color = new Color(80, 30, 255);
-
-                                    paletteChanger(childTileObject, palette);
-
-                                    foreach (Transform child in childTileObject.transform)
-                                    {
-
-                                        //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
-                                        //child.transform.position = new Vector3(childTileObject.transform.position.x, childTileObject.transform.position.y, -50f);
-                                        child.transform.localScale = new Vector3(1f, 1f, 1f);
-                                        child.transform.SetParent(childTileObject.transform, false);
-
-
-                                    }
-
-                                    childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
-
-
-                                    //BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
-                                    //_bc.center = new Vector3(0, 50, 0);
-
-                                    childTileObject.transform.SetParent(currentStructure.transform, false);
-
-
-                                    // All Tiles get colliders
-                                    BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
-                                    _bc.center = new Vector3(0, 50, 0);
-                                    _bc.size = new Vector3(100, 100, 100);
 
                                 }
 
-                                // var bounds1 = childTileObject.GetComponent<Renderer>().bounds;
-
-
-
-                                scenePrefabs.Add(childTileObject.gameObject);
-
-
-                                //foreach (GameObject existingObject in objects)
-                                //{
-
-                                //    if (existingObject.name.Contains("BRINSTAR"))
-                                //    {
-
-                                //        foreach (GameObject childExistingObject in objects)
-                                //        {
-                                //            //  UnityEngine.Debug.Log(existingObject.name);
-
-                                //            //if (existingObject.name.Contains(areaName + "_" + roomNumber) && existingObject.name != childTileObject.name)
-                                //            //{
-                                //                // UnityEngine.Debug.Log("INSIDE");
-
-
-                                //                //var bounds2 = existingObject.GetComponent<Renderer>().bounds;
-                                //                //if(bounds1.Intersects(bounds2) )
-                                //                if (childExistingObject.name.Contains(areaName + "_" + roomNumber) && (childTileObject.transform.position.x == childExistingObject.transform.position.x && childTileObject.transform.position.y == childExistingObject.transform.position.y) && childTileObject.name != childExistingObject.name)
-                                //                {
-
-
-                                //                if (childExistingObject.name.Contains("child"))
-                                //                {
-                                //                  UnityEngine.Debug.Log(childTileObject.name + " Position X-> " + childTileObject.transform.position.x + " Position Y-> " + childTileObject.transform.position.y + " <-- child | existing --> " + childExistingObject.name + " Position X-> " + childExistingObject.transform.position.x + " Position Y -> " + childExistingObject.transform.position.y);
-                                //                    //UnityEngine.Debug.Log("Object" + childTileObject.name + " INTERSECTS Structure offset X/Y = " + x + " " + y);
-
-
-                                //                        toDelete.Add(childExistingObject.gameObject);
-                                //                     }
-
-                                //                }
-                                //                else
-                                //                {
-                                //                    //UnityEngine.Debug.Log("Object" + childTileObject.name + " DONT INTERSECT! Structure offset X/Y = " + x + " " + y);
-                                //                }
-
-                                //            //
-                                //        }
-                                //    }
-                                //}
-
                                 break;
-
-
-
-
                         }
 
                     }
                 }
-
-
-
             }
 
-            currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
+            
 
 
 
@@ -1683,6 +1628,28 @@ public class CreatePrefabEditor
         }
     }
 
+    [MenuItem("MetroidVR/Palette Swap")]
+    private static void PaletteSwapper()
+    {
+        onlyPalette = true;
+        onlyEnemies = false;
+        drawEnemies = false;
+
+        //drawAllBrinstar();
+
+        GameObject[] gameObjects = NestedPrefab.FindObjectsOfType(typeof(GameObject)) as GameObject[];
+
+        for (var i = 0; i < gameObjects.Count(); i++)
+        {
+            //if ()
+            //{
+                if(gameObjects[i].name.Contains("="))
+                paletteChanger(gameObjects[i], gameObjects[i].name.Split('=')[1]);
+            //}
+            // Find existing game object and set it for palette replacement
+
+        }
+    }
     [MenuItem("MetroidVR/Prefap Swap Troubleshooter")]
     private static void testPrefabSwapper()
     {
