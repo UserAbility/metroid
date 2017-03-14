@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -231,7 +232,7 @@ public class CreatePrefabEditor
                         int.Parse(nesYXcoords.Substring(0, 1), System.Globalization.NumberStyles.HexNumber) + yMapOffset,
                         areaName,
                         structureRead,
-                        roomNumber, targetPalette
+                        roomNumber, targetPalette, yMapOffset, xMapOffset
                         );
                 }
                 //  }
@@ -302,7 +303,7 @@ public class CreatePrefabEditor
 
                     //UnityEngine.Debug.Log(System.Int32.Parse(thing2.Substring(0, 1), NumberStyles.AllowHexSpecifier));
 
-                    
+
 
                     //UnityEngine.UI.Image enemyObject = .Instantiate("Enemy") as UnityEngine.UI.Image;
                     //GameObject enemyObject = new GameObject("Enemy");
@@ -325,7 +326,7 @@ public class CreatePrefabEditor
 
 
 
-                    
+
 
                     if (roomNumber != "2B")
                     {
@@ -338,8 +339,8 @@ public class CreatePrefabEditor
                             otherSR.sprite = Resources.Load<Sprite>(currentEnemy.enemySpriteFileName);
                             enemyObject.transform.localScale += new Vector3(6f, 6f, 0.1f);
 
-                            enemyObject.transform.position = new Vector3(xOffset, (yOffset)+0.5f, 0);
-                            // UnityEngine.Debug.Log(yOffset + " <y after x> " + xOffset);
+                            enemyObject.transform.position = new Vector3(xOffset, (yOffset) + 0.5f, 0);
+                            UnityEngine.Debug.Log(yOffset + " <y after x> " + xOffset);
 
                             enemyObject.gameObject.name = "Enemy_Sprite_X_Type_" + thing2.Substring(1, 1);
 
@@ -349,27 +350,28 @@ public class CreatePrefabEditor
                         {
                             UnityEngine.Debug.Log(thing2 + "," + yOffset + "," + xOffset + "," + parentEnemyName);
                         }
-                        try
-                        {
-                            // UnityEngine.Debug.Log(currentEnemy.enemyNumber + (currentEnemy.enemyName + "," + currentEnemy.enemyColor));
 
-                            using (StreamWriter outputFile = new StreamWriter(@"c:\temp\DistinctEnemies.txt", true))
-                            {
-                                addToList(currentEnemy.enemyNumber, (currentEnemy.enemyName + "," + currentEnemy.enemyColor));
+                        //try
+                        //{
+                        //     UnityEngine.Debug.Log(currentEnemy.enemyNumber + (currentEnemy.enemyName + "," + currentEnemy.enemyColor));
 
-                                //  outputFile.WriteLine(thing2 + "," + yOffset + "," + xOffset + "," + parentEnemyName);
-                            }
-                        }
-                        catch
-                        {
-                          //  UnityEngine.Debug.Log(thing2 + "<-- enemy that failed lookup");
-                        }
+                        //    using (StreamWriter outputFile = new StreamWriter(@"c:\temp\DistinctEnemies.txt", true))
+                        //    {
+                        //        addToList(currentEnemy.enemyNumber, (currentEnemy.enemyName + "," + currentEnemy.enemyColor));
+
+                        //        //  outputFile.WriteLine(thing2 + "," + yOffset + "," + xOffset + "," + parentEnemyName);
+                        //    }
+                        //}
+                        //catch
+                        //{
+                        //      UnityEngine.Debug.Log(thing2 + "<-- enemy that failed lookup");
+                        //}
                     }
 
                     //  UnityEngine.Debug.Log("thing1 = " + thing1 + " thing2 = " + thing2 + " thing3 =" + thing3 + " offset was " + fileStream.Position.ToString("X") + " Room # = " + roomNumber);
                     // UnityEngine.Debug.Log("xoffset = " + xMapOffset + " yOffset = " + yMapOffset + " Sprite Slot =" + thing1.Substring(0, 1) + " Item Type = " + thing1.Substring(1, 1) + " Difficulty =" + thing2.Substring(0, 1) + " Enemy Type = " + thing2.Substring(1, 1) + " offset Y= " + thing3.Substring(0, 1) + " offset X= " + thing3.Substring(1, 1) + " Room # = " + roomNumber + " ending offset was " + fileStream.Position.ToString("X") + " starting offset was " + offset);
                     ///UnityEngine.Debug.Log(" Room # = " + roomNumber + " ending offset was " + fileStream.Position.ToString("X") + " starting offset was " + offset.ToString("X") + " Sprite Slot =" + thing1.Substring(0, 1) + " Item Type = " + thing1.Substring(1, 1) + " Difficulty =" + thing2.Substring(0, 1) + " Enemy Type = " + thing2.Substring(1, 1));
-                    
+
                     //}
                     //UnityEngine.Debug.Log((float)(xMapOffset) + System.Int32.Parse(thing3.Substring(1, 1), NumberStyles.AllowHexSpecifier)); // + (float)Convert.ToInt32(thing3.Substring(1, 1)));
 
@@ -382,11 +384,12 @@ public class CreatePrefabEditor
         // UnityEngine.Debug.Log("All room data read!");
     }
 
-    public static void structurePreFabBuilder(string fileName, int nesX, int nesY, string areaName, string structureNumber, string roomNumber, string palette)
+    public static void structurePreFabBuilder(string fileName, int nesX, int nesY, string areaName, string structureNumber, string roomNumber, string palette, int yOffset, int xOffset)
     {
         int scaleX = 2;
         int scaleY = 2;
         GameObject childTileObject = null;
+        bool skipTile = false;
 
         using (StreamReader sr = new StreamReader(fileName, Encoding.Default))
         {
@@ -412,6 +415,7 @@ public class CreatePrefabEditor
                 currentStructure.AddComponent<MeshRenderer>();
 
                 // Generate our structure at specific X,Y,Z coords to match NES placement
+
                 currentStructure.transform.position += new Vector3(nesX, nesY, 0);
 
                 // Set the new parent object to the plane parent
@@ -447,12 +451,85 @@ public class CreatePrefabEditor
             //Debug.Log("Line4 = " + (jagged.Length-1).ToString() + "," + (jagged[3].Length-1).ToString());
             int x = 0;
             int y = 0;
+            int screenCutoffCompensate = 0;
+            int xScreenCutoffCompensate = 0;
 
-            // create planes based on matrix
-            for (y = 0; y < jagged.Length - 1; y++)
+            if (nesY - yOffset >= 11)
             {
-                for (x = 0; x < jagged[y].Length - 1; x++)
+
+
+                if ((((nesY - yOffset) + jagged.Length) - 15) >= 0)
                 {
+                    screenCutoffCompensate = (((nesY - yOffset) + jagged.Length) - 15);
+
+                    // if (structName.Contains("BRINSTAR_0A_15_White"))
+                    //UnityEngine.Debug.Log(structName + " jagged.Length=" + jagged.Length + "NESy = " + nesY + " yOffset= " + yOffset + " nesY-yOffset = " + (nesY - yOffset) + " nesY+jagged.Length " + (((nesY - yOffset) + jagged.Length) - 15) + " compensate= " + ((jagged.Length - 1) - screenCutoffCompensate));
+                }
+            }
+
+            //if (nesY - yOffset == 11 && jagged.Length == 6)
+            //{
+            //    screenCutoffCompensate = 2;
+            //}
+            //else
+            //if (nesY - yOffset == 11 && jagged.Length == 7)
+            //{
+            //    screenCutoffCompensate = 3;
+            //}
+            //else
+            //if (nesY - yOffset > 11 && jagged.Length == 5)
+            //{
+            //    //if (jagged.Length == 5)
+            //    //{
+            //    screenCutoffCompensate = 1;
+            //    //}
+
+            //}
+            // create planes based on matrix
+            for (y = 0; y < ((jagged.Length - 0) - screenCutoffCompensate); y++)
+            {
+                if (structName.Contains("BRINSTAR_2B_1B_Aqua"))
+                {
+                   // UnityEngine.Debug.Log(structName + " jagged[y].Length=" + (jagged[y].Length - 1) + "NESx = " + nesX + " xOffset= " + xOffset + " nesX-xOffset = " + (nesX - xOffset) + " nesX+jagged.Length " + (((nesX - xOffset) + jagged[y].Length) - 15) + " compensate= " + ((jagged[y].Length - 1)));
+
+
+                }
+
+                if (nesX - xOffset >= 10)
+                {
+
+
+                    if ((((nesX - xOffset) + jagged[y].Length) - 15) >= 1)
+                    {
+
+
+                        // xScreenCutoffCompensate = ((jagged.Length - 1));
+
+                        //xScreenCutoffCompensate = ((15 - (nesX - xOffset)));
+                        //UnityEngine.Debug.Log(structName + " xScreenCutOff looking for 5 ... " + xScreenCutoffCompensate + " which gives us x length = " + ((jagged[y].Length - 1) + xScreenCutoffCompensate));
+                        //xScreenCutoffCompensate = (((nesX - xOffset) + jagged[y].Length) - 15)-2;
+
+                        //}
+                    }
+
+                    // xScreenCutoffCompensate = ((jagged.Length) + xScreenCutoffCompensate - 5);
+                    //UnityEngine.Debug.Log(structName + " offscreen position = " + (((nesX - xOffset) + jagged[y].Length) - 15));
+                    //xScreenCutoffCompensate = (((nesX - xOffset) + jagged[y].Length) - 15);
+
+
+                    //}
+                }
+
+
+                for (x = 0; x < ((jagged[y].Length - 1) - xScreenCutoffCompensate); x++)
+                {
+
+
+                    //if (nesY > 11)
+                    //{
+                    //    UnityEngine.Debug.Log(structName + " will extend beyond screen bottom. jagged[y].Length=" + jagged[y].Length + " Jagged length = " + jagged.Length);
+                    //}
+
                     var prefabName = "";
                     // Create the prefab in the UI editor/canvas
                     if (byteCount < structure.Count)
@@ -465,6 +542,17 @@ public class CreatePrefabEditor
                         byteCount++;
 
                         //UnityEngine.Debug.Log(prefabName.Replace("_", "-") + "," + structure.Count + "," + byteCount);
+
+                        // if (structName.Contains("BRINSTAR_2B_1B_Aqua"))
+                        // {
+                        if ((nesX - xOffset) + x > 15)
+                        {
+                            //skipTile = true;
+                            prefabName = "Blank space";
+                            //UnityEngine.Debug.Log(structName + " nesX-Xoffset= " + (nesX - xOffset) + x + " jaggedY length = " + ((jagged[y].Length - 1)));
+                        }
+
+                        //  }
 
                         switch (prefabName)
                         {
@@ -487,58 +575,67 @@ public class CreatePrefabEditor
                                 if (prefabName.Replace("_", "-") != "")
                                 {
                                     //if (onlyPalette == false)
-                                   // {
-                                        //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
-                                        childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
-                                        childTileObject.gameObject.name = (structName + "_|" + prefabName + "|_child_" + byteCount + "_Color=" + palette).ToString();
+                                    // {
+                                    //  UnityEngine.Debug.Log(structure.Count + "," + byteCount + "," + prefabName.Replace("_", "-") + "WTF");
+                                    childTileObject = NestedPrefab.Instantiate(Resources.Load(prefabName), new Vector3(x, y, 0), Quaternion.Euler(0, 0, 0)) as GameObject;
+                                    childTileObject.gameObject.name = (structName + "_|" + prefabName + "|_child_" + byteCount + "_Color=" + palette).ToString();
 
-                                        foreach (Transform child in childTileObject.transform)
-                                        {
+                                    foreach (Transform child in childTileObject.transform)
+                                    {
 
-                                            //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
-                                            //child.transform.position = new Vector3(childTileObject.transform.position.x, childTileObject.transform.position.y, -50f);
-                                            child.transform.localScale = new Vector3(1f, 1f, 1f);
-                                            child.transform.SetParent(childTileObject.transform, false);
+                                        //child.transform.position = new Vector3(childTileObject.transform.position.x , childTileObject.transform.position.y -1, childTileObject.transform.position.z);
+                                        //child.transform.position = new Vector3(childTileObject.transform.position.x, childTileObject.transform.position.y, -50f);
+                                        child.transform.localScale = new Vector3(1f, 1f, 1f);
+                                        child.transform.SetParent(childTileObject.transform, false);
 
 
-                                        }
+                                    }
 
-                                        childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
-                                        childTileObject.transform.SetParent(currentStructure.transform, false);
+                                    childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
+                                    childTileObject.transform.SetParent(currentStructure.transform, false);
 
-                                        // All Tiles get colliders
-                                        BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
-                                        _bc.center = new Vector3(0, 50, 0);
+                                    // All Tiles get colliders
+                                    BoxCollider _bc = (BoxCollider)childTileObject.gameObject.AddComponent(typeof(BoxCollider));
+
+                                    if (childTileObject.name.Contains("pipe-aqua"))
+                                    {
+                                        _bc.center = new Vector3(0, 25, 0);
+                                        _bc.size = new Vector3(100, 50, 100);
+                                    }
+                                    else
+                                    {
                                         _bc.size = new Vector3(100, 100, 100);
+                                        _bc.center = new Vector3(0, 50, 0);
+                                    }
 
-                                        scenePrefabs.Add(childTileObject.gameObject);
+                                    scenePrefabs.Add(childTileObject.gameObject);
 
-                                        currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
+                                    currentStructure.transform.SetParent(GameObject.Find("Plane").transform, false);
                                     //}
                                     //else
-                                   // {
-                                        //try
-                                        //{
-                                            
-                                        //    childTileObject = GameObject.Find((structName + "_|" + prefabName + "|_child_" + byteCount).ToString()).transform.gameObject;
-                                            paletteChanger(childTileObject, palette);
-                                        //}
-                                        //catch {
-                                        //   // UnityEngine.Debug.Log(structName + " <-- structname | --> prefabName " + prefabName + " Full name = " + structName + "_|" + prefabName + "|_child_" + byteCount);
-                                        //}
-                                        //GameObject[] gameObjects = NestedPrefab.FindObjectsOfType(typeof(GameObject)) as GameObject[];
+                                    // {
+                                    //try
+                                    //{
 
-                                        //for (var i = 0; i < gameObjects.Count(); i++)
-                                        //{
-                                        //    if (gameObjects[i].name.Contains(("_|" + prefabName + "|_child_" + byteCount).ToString()))
-                                        //    {
-                                        //        childTileObject = gameObjects[i];
-                                        //        paletteChanger(childTileObject, palette);
-                                        //    }
-                                        //    // Find existing game object and set it for palette replacement
+                                    //    childTileObject = GameObject.Find((structName + "_|" + prefabName + "|_child_" + byteCount).ToString()).transform.gameObject;
+                                    paletteChanger(childTileObject, palette);
+                                    //}
+                                    //catch {
+                                    //   // UnityEngine.Debug.Log(structName + " <-- structname | --> prefabName " + prefabName + " Full name = " + structName + "_|" + prefabName + "|_child_" + byteCount);
+                                    //}
+                                    //GameObject[] gameObjects = NestedPrefab.FindObjectsOfType(typeof(GameObject)) as GameObject[];
 
-                                        //}
-                                   // }
+                                    //for (var i = 0; i < gameObjects.Count(); i++)
+                                    //{
+                                    //    if (gameObjects[i].name.Contains(("_|" + prefabName + "|_child_" + byteCount).ToString()))
+                                    //    {
+                                    //        childTileObject = gameObjects[i];
+                                    //        paletteChanger(childTileObject, palette);
+                                    //    }
+                                    //    // Find existing game object and set it for palette replacement
+
+                                    //}
+                                    // }
 
 
                                 }
@@ -550,7 +647,7 @@ public class CreatePrefabEditor
                 }
             }
 
-            
+
 
 
 
@@ -1358,7 +1455,9 @@ public class CreatePrefabEditor
         {
 
             case "White":
-                if (!gameObject.name.Contains("pipe"))
+                if (!gameObject.name.Contains("pipe")
+                    && !gameObject.name.Contains("seal")
+                    )
                 {
                     faceMaterials[0] = Resources.Load(@"Materials\solid_grey", typeof(Material)) as Material;
                     faceMaterials[1] = Resources.Load(@"Materials\solid_greylight", typeof(Material)) as Material;
@@ -1485,14 +1584,20 @@ public class CreatePrefabEditor
 
             case "Green":
 
+
+
+
                 if (!gameObject.name.Contains("pot")
                             && !gameObject.name.Contains("pipe")
                             && !gameObject.name.Contains("br-m-tubeHori-white")
                             && !gameObject.name.Contains("br-m-tubeHori-hole-white")
+                            && !gameObject.name.Contains("br-m-pillar-hori-aqua")
                             && !gameObject.name.Contains("seal")
                             && !gameObject.name.Contains("lava")
                             )
                 {
+
+
                     if (gameObject.name.Contains("foam") || gameObject.name.Contains("br-m-rock"))
                     {
                         if (gameObject.name.Contains("25_06"))
@@ -1543,6 +1648,7 @@ public class CreatePrefabEditor
                 }
                 else
                 {
+
                     skipSwap = true;
                 }
                 break;
@@ -1626,6 +1732,7 @@ public class CreatePrefabEditor
 
             gameObject.GetComponent<Renderer>().sharedMaterials = faceMaterials;
         }
+
     }
 
     [MenuItem("MetroidVR/Palette Swap")]
@@ -1643,7 +1750,7 @@ public class CreatePrefabEditor
         {
             //if ()
             //{
-                if(gameObjects[i].name.Contains("="))
+            if (gameObjects[i].name.Contains("="))
                 paletteChanger(gameObjects[i], gameObjects[i].name.Split('=')[1]);
             //}
             // Find existing game object and set it for palette replacement
@@ -1665,37 +1772,60 @@ public class CreatePrefabEditor
 
 
         GameObject childTileObject = null;
-        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueA"), new Vector3(0 + 1, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueB"), new Vector3(0 + 2, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaA"), new Vector3(0 + 3, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaB"), new Vector3(0 + 4, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueA"), new Vector3(0 + 1, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+
+
+
+        //RectTransform newTrans = childTileObject.AddComponent<RectTransform>();
+        //RectTransform rectTransform = childTileObject.GetComponent<RectTransform>();
+
+        //UnityEngine.Debug.Log(rectTransform.rect.height + " <-- bush blueA y scale");
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_blueB"), new Vector3(0 + 2, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //newTrans = childTileObject.AddComponent<RectTransform>();
+        //rectTransform = childTileObject.GetComponent<RectTransform>();
+        //UnityEngine.Debug.Log(rectTransform.rect.height  + " <-- bush blueB y scale");
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaA"), new Vector3(0 + 3, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //newTrans = childTileObject.AddComponent<RectTransform>();
+        //rectTransform = childTileObject.GetComponent<RectTransform>();
+        //UnityEngine.Debug.Log(rectTransform.rect.height  + " <-- Pipe Aqua A y scale");
+
+        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-pipe-aquaB"), new Vector3(0 + 4, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //rectTransform = childTileObject.GetComponent<RectTransform>();
+        //UnityEngine.Debug.Log(rectTransform.rect.height  + " <-- Pipe Aqua B y scale");
+
         childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-bush_greenB"), new Vector3(0 + 5, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Green");
+        //newTrans = childTileObject.AddComponent<RectTransform>();
+        //rectTransform = childTileObject.GetComponent<RectTransform>();
+        //UnityEngine.Debug.Log(rectTransform.rect.height  + " <-- Bush Green B y scale");
+
+        //paletteChanger(childTileObject, "Green");
 
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-rock-aqua"), new Vector3(0 + 6, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Green");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-rock-aqua"), new Vector3(0 + 6, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Green");
 
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-pillar-hori-aqua"), new Vector3(0 + 7, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Aqua");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-pillar-hori-aqua"), new Vector3(0 + 7, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Aqua");
 
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-brush-aqua"), new Vector3(0 + 8, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Orange");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-brush-aqua"), new Vector3(0 + 8, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Orange");
 
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-brush-orange"), new Vector3(0 + 9, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Orange");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-brush-orange"), new Vector3(0 + 9, (-2 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Orange");
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-tube-aqua"), new Vector3(0 + 1, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Aqua");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-tube-aqua"), new Vector3(0 + 1, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Aqua");
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-spiral-aqua"), new Vector3(0 + 2, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Orange");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-spiral-aqua"), new Vector3(0 + 2, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Orange");
 
-        childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-spiral-orange"), new Vector3(0 + 3, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
-        paletteChanger(childTileObject, "Orange");
+        //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-m-spiral-orange"), new Vector3(0 + 3, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
+        //paletteChanger(childTileObject, "Orange");
 
         //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 4, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
         //childTileObject = NestedPrefab.Instantiate(Resources.Load("br-c-balls-blue"), new Vector3(0 + 5, (-3 + 0), 0), Quaternion.Euler(0, 0, 0)) as GameObject; childTileObject.transform.SetParent(GameObject.Find("Plane").transform, false);
@@ -1716,8 +1846,17 @@ public class CreatePrefabEditor
         {
 
             BoxCollider _bc = (BoxCollider)child.gameObject.AddComponent(typeof(BoxCollider));
-            _bc.center = new Vector3(0, 50, 0);
-            _bc.size = new Vector3(100, 100, 100);
+
+            if (child.name.Contains("pipe-aqua"))
+            {
+                _bc.center = new Vector3(0, 25, 0);
+                _bc.size = new Vector3(100, 50, 100);
+            }
+            else
+            {
+                _bc.size = new Vector3(100, 100, 100);
+                _bc.center = new Vector3(0, 50, 0);
+            }
 
         }
 
@@ -1997,27 +2136,34 @@ public class CreatePrefabEditor
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
         foreach (GameObject scenePrefab in scenePrefabs)
         {
-            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
-            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
-            && (x.name.Contains(scenePrefab.name.Substring(0, 9))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+           // try
+           // {
+                var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+                && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+                && (x.name.Contains(scenePrefab.name.Substring(0, 9))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
 
-            if (foundMatch.Count > 0)
-            {
-                foreach (var match in foundMatch)
+                if (foundMatch.Count > 0)
                 {
-                    if (match.name.Contains("child"))
+                    foreach (var match in foundMatch)
                     {
-                        // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
-                        toDelete.Add(scenePrefab.gameObject);
-
-                        foreach (Transform child in scenePrefab.transform)
+                        if (match.name.Contains("child"))
                         {
-                            toDelete.Add(child.gameObject);
+                            // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                            toDelete.Add(scenePrefab.gameObject);
+
+                            foreach (Transform child in scenePrefab.transform)
+                            {
+                                toDelete.Add(child.gameObject);
+                            }
                         }
                     }
-                }
 
-            }
+                }
+           // }
+            //catch
+            //{
+            //    UnityEngine.Debug.Log(scenePrefab.name + " failed to delete something?");
+           // };
         }
 
         //Delete the original prefabs
@@ -2055,7 +2201,7 @@ public class CreatePrefabEditor
     {
         onlyEnemies = false;
         drawEnemies = false;
-        
+
         // Create the plane automatically
         var sceneParent = new GameObject("Plane");
 
@@ -2084,49 +2230,49 @@ public class CreatePrefabEditor
         sw.Start();
 
         buildSingleRoom("BRINSTAR", "08", 0 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15, "Aqua");
+        // buildSingleRoom("BRINSTAR", "17", 1 * 16, 0 * 15, "Aqua");
+        // buildSingleRoom("BRINSTAR", "09", 2 * 16, 0 * 15, "Aqua");
+        // buildSingleRoom("BRINSTAR", "14", 3 * 16, 0 * 15, "Aqua");
+        // buildSingleRoom("BRINSTAR", "13", 4 * 16, 0 * 15, "Aqua");
 
 
 
         //// 1st Cross section that goes up and down
-        buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15, "Aqua");
+        // buildSingleRoom("BRINSTAR", "18", 5 * 16, 0 * 15, "Aqua");
 
         //// Verticle shaft 1 mid secction
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 1 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 2 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "06", 5 * 16, 3 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "03", 5 * 16, 4 * 15, "Aqua");
 
 
-        ////Room with all the pipes that had overlaps
-        buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15, "Green");
-        buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15, "Green");
-        buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15, "Green");
-        buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15, "Green");
-        buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15, "Green");
-        buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15, "Green");
-
-
-
+        //////Room with all the pipes that had overlaps
+        //buildSingleRoom("BRINSTAR", "1F", 13 * 16, -11 * 15, "Green");
+        //buildSingleRoom("BRINSTAR", "23", 14 * 16, -11 * 15, "Green");
+        //buildSingleRoom("BRINSTAR", "25", 15 * 16, -11 * 15, "Green");
+        //buildSingleRoom("BRINSTAR", "24", 16 * 16, -11 * 15, "Green");
+        //buildSingleRoom("BRINSTAR", "26", 17 * 16, -11 * 15, "Green");
+        //buildSingleRoom("BRINSTAR", "20", 18 * 16, -11 * 15, "Green");
 
 
 
 
-        // Verticle shaft 1 bottom secction
-        buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15, "Aqua");
 
-        //// Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
-        buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15, "Aqua");
 
-        //// Past first coordidor until the second verticle cooridor
-        buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15, "Aqua");
-        buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15, "Aqua");
+
+        //// Verticle shaft 1 bottom secction
+        //buildSingleRoom("BRINSTAR", "08", 5 * 16, 5 * 15, "Aqua");
+
+        ////// Verticle Shaft 1 (bottom horizontal outlet) - Elevator down..
+        //buildSingleRoom("BRINSTAR", "1C", 6 * 16, 4 * 15, "Aqua");
+
+        ////// Past first coordidor until the second verticle cooridor
+        //buildSingleRoom("BRINSTAR", "12", 6 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "14", 7 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "19", 8 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "13", 9 * 16, 0 * 15, "Aqua");
+        //buildSingleRoom("BRINSTAR", "04", 10 * 16, 0 * 15, "Aqua");
 
         //// Verticle Shaft 2 Bottom section
         //buildSingleRoom("BRINSTAR", "08", 10 * 16, 1 * 15, "Aqua");
@@ -2173,9 +2319,9 @@ public class CreatePrefabEditor
         //buildSingleRoom("BRINSTAR", "16", 7 * 16, -12 * 15);
         //buildSingleRoom("BRINSTAR", "15", 6 * 16, -12 * 15);
         //buildSingleRoom("BRINSTAR", "15", 5 * 16, -12 * 15);
-        //buildSingleRoom("BRINSTAR", "27", 4 * 16, -12 * 15);
-        //buildSingleRoom("BRINSTAR", "2B", 3 * 16, -12 * 15);
-        //buildSingleRoom("BRINSTAR", "2C", 2 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "27", 4 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "2B", 3 * 16, -12 * 15, "Aqua");
+        buildSingleRoom("BRINSTAR", "2C", 2 * 16, -12 * 15, "Aqua");
 
 
         //// Verticle Shaft 3 
@@ -2199,7 +2345,8 @@ public class CreatePrefabEditor
         //buildSingleRoom("BRINSTAR", "29", 17 * 16, -12 * 15);
         //buildSingleRoom("BRINSTAR", "29", 16 * 16, -12 * 15);
         //buildSingleRoom("BRINSTAR", "1A", 15 * 16, -12 * 15);
-        //buildSingleRoom("BRINSTAR", "0A", 14 * 16, -12 * 15);
+        buildSingleRoom("BRINSTAR", "0A", 14 * 16, -12 * 15, "White");
+
         //buildSingleRoom("BRINSTAR", "08", 13 * 16, -12 * 15);
 
         //buildSingleRoom("BRINSTAR", "1F", 20 * 16, -11 * 15);
@@ -2286,32 +2433,37 @@ public class CreatePrefabEditor
         //buildSingleRoom("BRINSTAR", "0B", 21 * 16, -3 * 15);
 
         //buildSingleRoom("BRINSTAR", "06", 12 * 16, -12 * 15);
-        //buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15);
+        buildSingleRoom("BRINSTAR", "08", 12 * 16, -13 * 15, "Orange");
 
 
         foreach (GameObject scenePrefab in scenePrefabs)
         {
-            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
-            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
-            && (x.name.Contains("BRINSTAR_")) && toDelete.IndexOf(x.gameObject) < 0).ToList();
-
-            if (foundMatch.Count > 0)
+            try
             {
-                foreach (var match in foundMatch)
-                {
-                    if (match.name.Contains("child"))
-                    {
-                        //UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
-                        toDelete.Add(scenePrefab.gameObject);
+                var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+                && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+                && (x.name.Contains("BRINSTAR_")) && toDelete.IndexOf(x.gameObject) < 0).ToList();
 
-                        foreach (Transform child in scenePrefab.transform)
+                if (foundMatch.Count > 0)
+                {
+                    foreach (var match in foundMatch)
+                    {
+                        if (match.name.Contains("child"))
                         {
-                            toDelete.Add(child.gameObject);
+                            //UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                            toDelete.Add(scenePrefab.gameObject);
+
+                            foreach (Transform child in scenePrefab.transform)
+                            {
+                                toDelete.Add(child.gameObject);
+                            }
                         }
                     }
-                }
 
+                }
             }
+            catch { }
+
         }
 
 
