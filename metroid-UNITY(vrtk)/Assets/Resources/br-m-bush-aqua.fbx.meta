@@ -8,15 +8,25 @@ ModelImporter:
     100000: block
     100002: //RootNode
     100004: bush
+    100006: base
+    100008: brush
     400000: block
     400002: //RootNode
     400004: bush
+    400006: base
+    400008: brush
     2300000: block
     2300002: bush
+    2300004: base
+    2300006: brush
     3300000: block
     3300002: bush
+    3300004: base
+    3300006: brush
     4300000: bush
     4300002: block
+    4300004: brush
+    4300006: base
     9500000: //RootNode
   materials:
     importMaterials: 1
