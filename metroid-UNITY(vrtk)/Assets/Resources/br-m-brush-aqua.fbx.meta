@@ -10,23 +10,28 @@ ModelImporter:
     100004: pCube138
     100006: block
     100008: base
+    100010: bush
     400000: //RootNode
     400002: brush
     400004: pCube138
     400006: block
     400008: base
+    400010: bush
     2300000: brush
     2300002: pCube138
     2300004: block
     2300006: base
+    2300008: bush
     3300000: brush
     3300002: pCube138
     3300004: block
     3300006: base
+    3300008: bush
     4300000: brush
     4300002: pCube138
     4300004: block
     4300006: base
+    4300008: bush
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -38,6 +43,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

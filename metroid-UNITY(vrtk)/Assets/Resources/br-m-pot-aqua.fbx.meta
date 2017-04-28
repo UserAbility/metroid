@@ -11,6 +11,7 @@ ModelImporter:
     3300000: //RootNode
     4300000: pot
     4300002: pot_aqua4
+    4300004: pot_aqua_m
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -22,6 +23,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

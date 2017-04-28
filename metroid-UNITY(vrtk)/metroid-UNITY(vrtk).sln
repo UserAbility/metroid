@@ -1,9 +1,9 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
-Project("{02A18C2C-3CCC-DD09-B6F5-2A10708D4389}") = "metroid-UNITY(vrtk)", "Assembly-CSharp.csproj", "{C557ACA5-DB4A-A0E0-BA4C-C7D20CD7137A}"
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "metroid-UNITY(vrtk)", "Assembly-CSharp.csproj", "{C557ACA5-DB4A-A0E0-BA4C-C7D20CD7137A}"
 EndProject
-Project("{02A18C2C-3CCC-DD09-B6F5-2A10708D4389}") = "metroid-UNITY(vrtk)", "Assembly-CSharp-Editor.csproj", "{879CA2B0-C85D-E88A-76F8-20799A5FCDC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "metroid-UNITY(vrtk)", "Assembly-CSharp-Editor.csproj", "{879CA2B0-C85D-E88A-76F8-20799A5FCDC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -51,6 +51,7 @@ ModelImporter:
     4300014: pCube221
     4300016: seal_blue4
     4300018: imp_seal_blue
+    4300020: seal_blue_m
     6400000: //RootNode
   materials:
     importMaterials: 1
@@ -62,6 +63,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

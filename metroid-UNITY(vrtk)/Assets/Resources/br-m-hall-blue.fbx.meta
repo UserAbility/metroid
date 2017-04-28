@@ -50,6 +50,7 @@ ModelImporter:
     4300012: cube3
     4300014: cube1
     4300016: cube2
+    4300018: hall_blue_m
   materials:
     importMaterials: 1
     materialName: 0
@@ -60,6 +61,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

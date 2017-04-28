@@ -25,6 +25,7 @@ ModelImporter:
     4300002: grate1
     4300004: grate
     4300006: vent2
+    4300008: vent_aqua_m
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -36,6 +37,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

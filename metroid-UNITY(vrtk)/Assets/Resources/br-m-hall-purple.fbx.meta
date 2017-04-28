@@ -20,6 +20,7 @@ ModelImporter:
     4300000: hall_blue5
     4300002: pCube384
     4300004: hall_red
+    4300006: hall_purple_m
   materials:
     importMaterials: 1
     materialName: 0
@@ -30,6 +31,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

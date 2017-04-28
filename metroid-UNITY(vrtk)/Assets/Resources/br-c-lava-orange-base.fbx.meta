@@ -6,11 +6,16 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: lava_orange_base_m
     400000: //RootNode
+    400002: lava_orange_base_m
     2300000: //RootNode
+    2300002: lava_orange_base_m
     3300000: //RootNode
+    3300002: lava_orange_base_m
     4300000: lava_base_orange_cube
     4300002: lava_orange_base
+    4300004: lava_orange_base_m
   materials:
     importMaterials: 1
     materialName: 0
@@ -21,6 +26,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
