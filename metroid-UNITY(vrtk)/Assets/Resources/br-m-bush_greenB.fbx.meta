@@ -8,15 +8,20 @@ ModelImporter:
     100000: base
     100002: //RootNode
     100004: green
+    100006: color
     400000: base
     400002: //RootNode
     400004: green
+    400006: color
     2300000: base
     2300002: green
+    2300004: color
     3300000: base
     3300002: green
+    3300004: color
     4300000: base
     4300002: green
+    4300004: color
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -28,6 +33,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

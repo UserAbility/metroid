@@ -14,6 +14,12 @@ ModelImporter:
     100012: bubble14
     100014: bubble8
     100016: bubble9
+    100018: bubble2
+    100020: bubble3
+    100022: bubble4
+    100024: bubble5
+    100026: bubble6
+    100028: bubble7
     400000: //RootNode
     400002: bubble
     400004: bubble10
@@ -23,6 +29,12 @@ ModelImporter:
     400012: bubble14
     400014: bubble8
     400016: bubble9
+    400018: bubble2
+    400020: bubble3
+    400022: bubble4
+    400024: bubble5
+    400026: bubble6
+    400028: bubble7
     2300000: bubble
     2300002: bubble10
     2300004: bubble11
@@ -31,6 +43,12 @@ ModelImporter:
     2300010: bubble14
     2300012: bubble8
     2300014: bubble9
+    2300016: bubble2
+    2300018: bubble3
+    2300020: bubble4
+    2300022: bubble5
+    2300024: bubble6
+    2300026: bubble7
     3300000: bubble
     3300002: bubble10
     3300004: bubble11
@@ -39,6 +57,12 @@ ModelImporter:
     3300010: bubble14
     3300012: bubble8
     3300014: bubble9
+    3300016: bubble2
+    3300018: bubble3
+    3300020: bubble4
+    3300022: bubble5
+    3300024: bubble6
+    3300026: bubble7
     4300000: bubble14
     4300002: bubble13
     4300004: bubble8
@@ -47,6 +71,12 @@ ModelImporter:
     4300010: bubble12
     4300012: bubble11
     4300014: bubble
+    4300016: bubble7
+    4300018: bubble6
+    4300020: bubble5
+    4300022: bubble4
+    4300024: bubble3
+    4300026: bubble2
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -58,6 +88,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

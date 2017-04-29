@@ -8,15 +8,20 @@ ModelImporter:
     100000: block
     100002: //RootNode
     100004: bush
+    100006: bush_orange_m
     400000: block
     400002: //RootNode
     400004: bush
+    400006: bush_orange_m
     2300000: block
     2300002: bush
+    2300004: bush_orange_m
     3300000: block
     3300002: bush
+    3300004: bush_orange_m
     4300000: bush
     4300002: block
+    4300004: bush_orange_m
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -28,6 +33,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

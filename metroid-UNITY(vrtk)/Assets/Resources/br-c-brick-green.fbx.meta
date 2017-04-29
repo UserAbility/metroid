@@ -6,10 +6,25 @@ ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
+    100002: base
+    100004: highlight
+    100006: shadow
     400000: //RootNode
+    400002: base
+    400004: highlight
+    400006: shadow
     2300000: //RootNode
+    2300002: base
+    2300004: highlight
+    2300006: shadow
     3300000: //RootNode
+    3300002: base
+    3300004: highlight
+    3300006: shadow
     4300000: brick_green_cube4
+    4300002: highlight
+    4300004: shadow
+    4300006: base
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -21,6 +36,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

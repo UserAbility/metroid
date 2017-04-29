@@ -9,19 +9,34 @@ ModelImporter:
     100002: pCube384
     100004: pCube405
     100006: pCube406
+    100008: base
+    100010: highlight
+    100012: shadow
     400000: //RootNode
     400002: pCube384
     400004: pCube405
     400006: pCube406
+    400008: base
+    400010: highlight
+    400012: shadow
     2300000: pCube384
     2300002: pCube405
     2300004: pCube406
+    2300006: base
+    2300008: highlight
+    2300010: shadow
     3300000: pCube384
     3300002: pCube405
     3300004: pCube406
+    3300006: base
+    3300008: highlight
+    3300010: shadow
     4300000: pCube405
     4300002: pCube406
     4300004: pCube384
+    4300006: highlight
+    4300008: shadow
+    4300010: base
   materials:
     importMaterials: 1
     materialName: 0
@@ -32,6 +47,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

@@ -8,15 +8,25 @@ ModelImporter:
     100000: base
     100002: //RootNode
     100004: brush
+    100006: block
+    100008: bush
     400000: base
     400002: //RootNode
     400004: brush
+    400006: block
+    400008: bush
     2300000: base
     2300002: brush
+    2300004: block
+    2300006: bush
     3300000: base
     3300002: brush
+    3300004: block
+    3300006: bush
     4300000: brush
     4300002: base
+    4300004: bush
+    4300006: block
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -28,6 +38,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

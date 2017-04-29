@@ -22,6 +22,7 @@ ModelImporter:
     100028: bubble6
     100030: bubble7
     100032: pCube416
+    100034: bubble8
     400000: //RootNode
     400002: pSphere12
     400004: pSphere13
@@ -39,6 +40,7 @@ ModelImporter:
     400028: bubble6
     400030: bubble7
     400032: pCube416
+    400034: bubble8
     2300000: pSphere12
     2300002: pSphere13
     2300004: pSphere14
@@ -55,6 +57,7 @@ ModelImporter:
     2300026: bubble6
     2300028: bubble7
     2300030: pCube416
+    2300032: bubble8
     3300000: pSphere12
     3300002: pSphere13
     3300004: pSphere14
@@ -71,6 +74,7 @@ ModelImporter:
     3300026: bubble6
     3300028: bubble7
     3300030: pCube416
+    3300032: bubble8
     4300000: pSphere12
     4300002: pSphere13
     4300004: pSphere14
@@ -87,6 +91,7 @@ ModelImporter:
     4300026: bubble
     4300028: bubble4
     4300030: bubble7
+    4300032: bubble8
   materials:
     importMaterials: 1
     materialName: 0
@@ -97,6 +102,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
