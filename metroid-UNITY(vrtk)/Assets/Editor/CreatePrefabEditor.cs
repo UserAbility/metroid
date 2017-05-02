@@ -337,7 +337,7 @@ public class CreatePrefabEditor
                             enemyObject.AddComponent<SpriteRenderer>();
                             SpriteRenderer otherSR = enemyObject.GetComponent<SpriteRenderer>();
                             otherSR.sprite = Resources.Load<Sprite>(currentEnemy.enemySpriteFileName);
-                            enemyObject.transform.localScale += new Vector3(6f, 6f, 0.1f);
+                            enemyObject.transform.localScale += new Vector3(6f, 6f, 1f);
 
                             enemyObject.transform.position = new Vector3(xOffset, (yOffset) + 0.5f, 0);
                             UnityEngine.Debug.Log(yOffset + " <y after x> " + xOffset);
@@ -591,7 +591,8 @@ public class CreatePrefabEditor
 
                                     }
 
-                                    childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
+                                    childTileObject.transform.localScale = new Vector3(1f, -1f, 1f);
+                                    //childTileObject.transform.localScale = new Vector3(0.01f, -0.01f, 0.01f);
                                     childTileObject.transform.SetParent(currentStructure.transform, false);
 
                                     // All Tiles get colliders
@@ -1877,13 +1878,13 @@ public class CreatePrefabEditor
     //}
 
 
-    [MenuItem("MetroidVR/Draw Brinstar Enemies")]
-    private static void CreatePrefabComplete_Enemies()
-    {
-        onlyEnemies = true;
-        drawEnemies = true;
-        drawAllBrinstar();
-    }
+    //[MenuItem("MetroidVR/Draw Brinstar Enemies")]
+    //private static void CreatePrefabComplete_Enemies()
+    //{
+    //    onlyEnemies = true;
+    //    drawEnemies = true;
+    //    drawAllBrinstar();
+    //}
 
     private static void drawAllBrinstar()
     {
