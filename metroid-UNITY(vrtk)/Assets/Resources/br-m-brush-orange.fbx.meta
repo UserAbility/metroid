@@ -8,15 +8,20 @@ ModelImporter:
     100000: base
     100002: //RootNode
     100004: brush
+    100006: highlight
     400000: base
     400002: //RootNode
     400004: brush
+    400006: highlight
     2300000: base
     2300002: brush
+    2300004: highlight
     3300000: base
     3300002: brush
+    3300004: highlight
     4300000: brush
     4300002: base
+    4300004: highlight
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -28,6 +33,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

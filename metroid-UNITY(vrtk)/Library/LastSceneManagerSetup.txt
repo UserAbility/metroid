@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/smh-5.01-test.unity
+- path: Assets/Scenes/smh-5.11-test.unity
   isLoaded: 1
   isActive: 1

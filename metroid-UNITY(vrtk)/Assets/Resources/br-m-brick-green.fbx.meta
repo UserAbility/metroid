@@ -12,6 +12,9 @@ ModelImporter:
     100008: base
     100010: highlight
     100012: shadow
+    100014: highlight1
+    100016: shadow1
+    100018: bricks
     400000: //RootNode
     400002: pCube384
     400004: pCube405
@@ -19,24 +22,36 @@ ModelImporter:
     400008: base
     400010: highlight
     400012: shadow
+    400014: highlight1
+    400016: shadow1
+    400018: bricks
     2300000: pCube384
     2300002: pCube405
     2300004: pCube406
     2300006: base
     2300008: highlight
     2300010: shadow
+    2300012: highlight1
+    2300014: shadow1
+    2300016: bricks
     3300000: pCube384
     3300002: pCube405
     3300004: pCube406
     3300006: base
     3300008: highlight
     3300010: shadow
+    3300012: highlight1
+    3300014: shadow1
+    3300016: bricks
     4300000: pCube405
     4300002: pCube406
     4300004: pCube384
     4300006: highlight
     4300008: shadow
     4300010: base
+    4300012: highlight1
+    4300014: shadow1
+    4300016: bricks
   materials:
     importMaterials: 1
     materialName: 0
