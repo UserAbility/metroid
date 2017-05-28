@@ -24,6 +24,7 @@ public class CreatePrefabEditor
 
     // List of game objects that overlap to be deleted
     private static List<GameObject> toDelete = new List<GameObject>();
+    private static List<BoxCollider> toDeleteColliders = new List<BoxCollider>();
 
     public static List<GameObject> scenePrefabs = new List<GameObject>();
 
@@ -490,7 +491,7 @@ public class CreatePrefabEditor
             {
                 if (structName.Contains("BRINSTAR_2B_1B_Aqua"))
                 {
-                   // UnityEngine.Debug.Log(structName + " jagged[y].Length=" + (jagged[y].Length - 1) + "NESx = " + nesX + " xOffset= " + xOffset + " nesX-xOffset = " + (nesX - xOffset) + " nesX+jagged.Length " + (((nesX - xOffset) + jagged[y].Length) - 15) + " compensate= " + ((jagged[y].Length - 1)));
+                    // UnityEngine.Debug.Log(structName + " jagged[y].Length=" + (jagged[y].Length - 1) + "NESx = " + nesX + " xOffset= " + xOffset + " nesX-xOffset = " + (nesX - xOffset) + " nesX+jagged.Length " + (((nesX - xOffset) + jagged[y].Length) - 15) + " compensate= " + ((jagged[y].Length - 1)));
 
 
                 }
@@ -2137,34 +2138,34 @@ public class CreatePrefabEditor
         GameObject.Find("Plane").transform.localScale = new Vector3(1f, -1f, 1f);
         foreach (GameObject scenePrefab in scenePrefabs)
         {
-           // try
-           // {
-                var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
-                && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
-                && (x.name.Contains(scenePrefab.name.Substring(0, 9))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+            // try
+            // {
+            var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+            && (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+            && (x.name.Contains(scenePrefab.name.Substring(0, 9))) && toDelete.IndexOf(x.gameObject) < 0).ToList();
 
-                if (foundMatch.Count > 0)
+            if (foundMatch.Count > 0)
+            {
+                foreach (var match in foundMatch)
                 {
-                    foreach (var match in foundMatch)
+                    if (match.name.Contains("child"))
                     {
-                        if (match.name.Contains("child"))
-                        {
-                            // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
-                            toDelete.Add(scenePrefab.gameObject);
+                        // UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+                        toDelete.Add(scenePrefab.gameObject);
 
-                            foreach (Transform child in scenePrefab.transform)
-                            {
-                                toDelete.Add(child.gameObject);
-                            }
+                        foreach (Transform child in scenePrefab.transform)
+                        {
+                            toDelete.Add(child.gameObject);
                         }
                     }
-
                 }
-           // }
+
+            }
+            // }
             //catch
             //{
             //    UnityEngine.Debug.Log(scenePrefab.name + " failed to delete something?");
-           // };
+            // };
         }
 
         //Delete the original prefabs
@@ -2194,6 +2195,61 @@ public class CreatePrefabEditor
         drawEnemies = false;
         drawAllBrinstar();
 
+
+    }
+
+    [MenuItem("MetroidVR/Delete Scene Colliders")]
+    private static void DeleteSceneColliders()
+    {
+
+
+        GameObject[] allObjs = NestedPrefab.FindObjectsOfType(typeof(GameObject)) as GameObject[];
+        List<GameObject> likeNames = new List<GameObject>();
+        foreach (GameObject scenePrefab in allObjs)
+        {
+            // try
+            // {
+            //var foundMatch = scenePrefabs.Where(x => (x.transform.position.x == scenePrefab.transform.position.x)
+            //&& (x.transform.position.y == scenePrefab.transform.position.y) && (x.name != scenePrefab.name)
+            //&& (x.name.Contains("BRINSTAR_")) && toDelete.IndexOf(x.gameObject) < 0).ToList();
+
+            //if (foundMatch.Count > 0)
+            //{
+            // foreach (var match in foundMatch)
+            //{
+            //if (match.name.Contains("child"))
+            //{
+            //UnityEngine.Debug.Log(scenePrefab.name + " <-- ScenePrefab name | " + match.name + " <-- name : position x --> " + match.transform.position.x + " position y --> " + match.transform.position.y);
+            //toDelete.Add(scenePrefab.gameObject);
+
+           // UnityEngine.Debug.Log(scenePrefab.name);
+
+            toDeleteColliders.Add(scenePrefab.gameObject.GetComponent<BoxCollider>());
+
+            foreach (Transform child in scenePrefab.transform)
+            {
+                //GameObject.Destroy(child.gameObject.GetComponent<BoxCollider>());
+                toDeleteColliders.Add(child.gameObject.GetComponent<BoxCollider>());
+            }
+            //}
+            // }
+
+            //}
+            // }
+            // catch { }
+
+        }
+
+
+        ////Delete the original prefabs
+        foreach (var del in toDeleteColliders)
+        {
+            GameObject.DestroyImmediate(del);
+        }
+
+        //Console.WriteLine(sw.ElapsedMilliseconds);
+        UnityEngine.Debug.Log(sw.Elapsed.TotalSeconds + " <-- Finished deleting bounding boxes");
+        sw.Stop();
 
     }
 
